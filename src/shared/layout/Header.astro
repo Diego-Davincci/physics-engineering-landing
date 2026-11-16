@@ -1,0 +1,117 @@
+---
+/**
+ * Site header — "★ NAVBAR ELEGIDO · A · Isla flotante con traza".
+ * Floats over the page: monogram (left), a blurred pill of links (center) and the
+ * primary call to action (right). Hovering or focusing a link lights its dot and
+ * draws a moving trace under it — CSS only, no JS. Below `lg` the links move into
+ * a <details> menu.
+ */
+
+/** Main navigation. `trace` is the token color of each link's hover trace; `href` is a placeholder. */
+const links = [
+  { label: 'Malla curricular', href: '#', trace: 'var(--color-phosphor)' },
+  { label: 'Préstamos', href: '#', trace: 'var(--color-ch3-strong)' },
+  { label: '¿A quién acudo?', href: '#', trace: 'var(--color-parchment)' },
+];
+
+/** Hover trace: a sine 150 units long in a 120-unit box, so it can ride 30 units (2 periods) and loop. */
+const wave = 'M0 5 Q7.5 0 15 5 T30 5 T45 5 T60 5 T75 5 T90 5 T105 5 T120 5 T135 5 T150 5';
+
+const island =
+  'rounded-full border border-graphite bg-carbon/72 shadow-[0_10px_30px_rgb(0_0_0/0.45),inset_0_1px_0_rgb(214_236_255/0.06)] backdrop-blur-[14px]';
+---
+
+<header class="fixed inset-x-0 top-3 z-50 flex h-16 items-center justify-between gap-4 px-4 md:top-5 md:px-10">
+  <a href="/" aria-label="Inicio · Ingeniería Física" class="flex items-center gap-3 text-foreground">
+    <span
+      aria-hidden="true"
+      class="flex size-9 items-center justify-center rounded-control border border-electric bg-void/60 font-serif text-[22px] italic"
+    >
+      IF
+    </span>
+    <span aria-hidden="true" class="hidden type-eyebrow text-muted sm:block">Ing. Física · UNAL</span>
+  </a>
+
+  <nav aria-label="Principal" class="hidden lg:block">
+    <ul class:list={['flex h-14 items-center gap-1 px-2', island]}>
+      {
+        links.map((link) => (
+          <li>
+            <a
+              href={link.href}
+              style={`--trace: ${link.trace}`}
+              class="group relative flex h-11 items-center gap-2 rounded-full px-4.5 type-nav text-muted transition-colors duration-250 hover:bg-ice/6 hover:text-foreground focus-visible:bg-ice/6 focus-visible:text-foreground"
+            >
+              <span
+                aria-hidden="true"
+                class="size-1.5 rounded-full bg-muted/30 transition-[background-color,box-shadow] duration-250 group-hover:bg-(--trace) group-hover:shadow-[0_0_8px_var(--trace)] group-focus-visible:bg-(--trace) group-focus-visible:shadow-[0_0_8px_var(--trace)]"
+              />
+              {link.label}
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 120 10"
+                preserveAspectRatio="none"
+                class="pointer-events-none absolute inset-x-0 -bottom-0.5 h-2.5 w-full opacity-0 transition-opacity duration-250 group-hover:opacity-100 group-focus-visible:opacity-100"
+              >
+                <path
+                  d={wave}
+                  fill="none"
+                  stroke-width="1.6"
+                  class="animate-[nav-trace_1.2s_linear_infinite] stroke-(--trace) drop-shadow-[0_0_3px_var(--trace)]"
+                />
+              </svg>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+
+  <div class="flex items-center gap-2">
+    <a
+      href="#"
+      class="inline-flex h-11 shrink-0 items-center rounded-full bg-electric px-4.5 type-small font-semibold whitespace-nowrap text-on-electric transition-colors hover:bg-electric-hover"
+    >
+      Pedir casillero
+    </a>
+
+    <details class="group/menu relative lg:hidden">
+      <summary
+        aria-label="Menú"
+        class:list={[
+          'flex size-11 cursor-pointer list-none items-center justify-center text-foreground [&::-webkit-details-marker]:hidden',
+          island,
+        ]}
+      >
+        <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" class="size-5">
+          <path d="M4 6H16M4 10H16M4 14H16" class="group-open/menu:hidden"></path>
+          <path d="M5 5L15 15M15 5L5 15" class="hidden group-open/menu:block"></path>
+        </svg>
+      </summary>
+      <ul class="absolute top-full right-0 mt-2 flex w-60 flex-col gap-1 rounded-3xl border border-graphite bg-carbon/90 p-2 shadow-[0_10px_30px_rgb(0_0_0/0.45)] backdrop-blur-[14px]">
+        {
+          links.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                style={`--trace: ${link.trace}`}
+                class="flex h-11 items-center gap-2.5 rounded-full px-4 type-nav text-muted transition-colors hover:bg-ice/6 hover:text-foreground"
+              >
+                <span aria-hidden="true" class="size-1.5 rounded-full bg-(--trace)" />
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </details>
+  </div>
+</header>
+
+<style>
+  @keyframes nav-trace {
+    to {
+      transform: translateX(-30px);
+    }
+  }
+</style>

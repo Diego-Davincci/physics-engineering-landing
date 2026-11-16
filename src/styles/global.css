@@ -1,0 +1,184 @@
+/*
+ * Fósforo · Ingeniería Física — design tokens.
+ * Source of truth: SYSTEM-DESIGN.md. Prefer these classes over Tailwind's built-ins.
+ */
+@import "tailwindcss";
+
+@theme {
+  /* ── Color: surfaces ─────────────────────────────── */
+  --color-void: #05070b; /* page background */
+  --color-carbon: #0e131c; /* raised surfaces: cards, panels, navbar island */
+  --color-graphite: #1a2230; /* 1px borders, dividers, scope grid — never behind small text */
+
+  /* ── Color: brand ────────────────────────────────── */
+  --color-electric: #2f6bff; /* primary buttons, active borders, strokes — never small text */
+  --color-electric-hover: #245be6;
+  --color-on-electric: #ffffff; /* text on an electric fill */
+  --color-phosphor: #4fd6ff; /* the trace: data, course codes, interactive, focus */
+  --color-ice: #d6ecff; /* light accent, highlights */
+  --color-parchment: #e8dcc4; /* single warm accent — use sparingly */
+
+  /* ── Color: text ─────────────────────────────────── */
+  --color-foreground: #eef3fa; /* body text */
+  --color-muted: #9db0c8; /* secondary text, idle nav links, notes */
+  --color-subtle: #6f7f96; /* footer and fine print (4.9:1 on void) — not for body text */
+
+  /* ── Color: feedback ─────────────────────────────── */
+  --color-success: var(--color-phosphor); /* always with a check icon, never green */
+  --color-danger: #ff7a7a; /* proposal, pending approval */
+
+  /* ── Color: channels (career branches) ───────────── */
+  /* strong = borders/strokes · soft = text/labels · deep = node backgrounds */
+  --color-ch1-strong: var(--color-electric); /* Ciencia básica · sine */
+  --color-ch1-soft: var(--color-phosphor);
+  --color-ch1-deep: #0f2147;
+  --color-ch2-strong: #8c99ab; /* Mecánica y diseño · trapezoid */
+  --color-ch2-soft: #c3ccd8;
+  --color-ch2-deep: #262d38;
+  --color-ch3-strong: #2bd47d; /* Electrónica · square */
+  --color-ch3-soft: #8ff0be;
+  --color-ch3-deep: #0b3a26;
+  --color-ch4-strong: #7c6cff; /* Física teórica · wave packet — strokes only, not text */
+  --color-ch4-soft: #b9b0ff;
+  --color-ch4-deep: #241f55;
+
+  /* ── Fonts (loaded by Astro's Fonts API, see astro.config.mjs) ── */
+  --font-serif: var(--font-instrument-serif);
+  --font-sans: var(--font-bricolage);
+
+  /* ── Radius ──────────────────────────────────────── */
+  --radius-control: 6px; /* inputs, monogram. Buttons and the nav island use rounded-full */
+}
+
+/* ── Typography styles: one class = one complete style ── */
+/* Sizes step up at md (768px). See SYSTEM-DESIGN.md §3. */
+
+@utility type-hero {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 56px;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  @media (width >= 48rem) {
+    font-size: 96px;
+  }
+}
+
+@utility type-display {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 40px;
+  line-height: 1.05;
+  @media (width >= 48rem) {
+    font-size: 56px;
+  }
+}
+
+@utility type-title {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1.15;
+  @media (width >= 48rem) {
+    font-size: 32px;
+  }
+}
+
+@utility type-lead {
+  font-family: var(--font-sans);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 26px;
+  @media (width >= 48rem) {
+    font-size: 20px;
+    line-height: 28px;
+  }
+}
+
+@utility type-heading {
+  font-family: var(--font-sans);
+  font-style: normal;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 28px;
+}
+
+@utility type-nav {
+  font-family: var(--font-sans);
+  font-style: normal;
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 20px;
+}
+
+@utility type-body {
+  font-family: var(--font-sans);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+@utility type-small {
+  font-family: var(--font-sans);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+@utility type-data {
+  font-family: var(--font-sans);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+@utility type-eyebrow {
+  font-family: var(--font-sans);
+  font-style: normal;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ── Base ──────────────────────────────────────────── */
+@layer base {
+  html {
+    color-scheme: dark;
+    background-color: var(--color-void);
+  }
+
+  body {
+    @apply type-body bg-void text-foreground antialiased;
+  }
+
+  ::selection {
+    background-color: var(--color-electric);
+    color: var(--color-on-electric);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-phosphor);
+    outline-offset: 2px;
+  }
+
+  /* Reduced motion: everything static. No exceptions (SYSTEM-DESIGN.md §5). */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation: none !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

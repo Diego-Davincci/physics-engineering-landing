@@ -1,0 +1,34 @@
+---
+/**
+ * Site footer — "Pie de página · logo + créditos".
+ * A quiet strip: university shield and name (left), student credit linking to the author's GitHub (right).
+ */
+import { Image } from 'astro:assets';
+import shield from '../../assets/footer/unal-shield.png';
+---
+
+<footer class="border-t border-graphite">
+  <div
+    class="mx-auto flex max-w-[1920px] flex-col items-start gap-3 px-4 py-5 sm:flex-row sm:items-center sm:justify-between md:px-10"
+  >
+    <div class="flex items-center gap-3">
+      <Image src={shield} alt="Escudo de la Universidad Nacional de Colombia" width={26} height={32} densities={[1, 2]} />
+      <span class="type-eyebrow text-subtle">Universidad Nacional de Colombia · Sede Medellín</span>
+    </div>
+
+    <a
+      href="https://github.com/Diego-Davincci"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="inline-flex min-h-11 items-center gap-1.5 type-small text-subtle transition-colors hover:text-foreground"
+    >
+      Made with
+      <svg role="img" aria-label="amor" viewBox="0 0 16 16" class="size-3 fill-danger/75">
+        <path
+          d="M8 14s-6-3.8-6-8.2C2 3.6 3.6 2 5.6 2c1.1 0 2 .6 2.4 1.4C8.4 2.6 9.3 2 10.4 2 12.4 2 14 3.6 14 5.8 14 10.2 8 14 8 14z"
+        ></path>
+      </svg>
+      to IF
+    </a>
+  </div>
+</footer>

@@ -1,0 +1,221 @@
+---
+/**
+ * Hero artwork overlay: the oscilloscope "where God would sit", its probe and the spark
+ * that jumps to Faraday's finger. Drawn on the hero's 1440×900 stage so it lines up
+ * with the illustration at any size. Decorative — hidden from assistive tech.
+ *
+ * The four screen traces are the career channels (SYSTEM-DESIGN.md §2):
+ * CH1 sine · CH2 trapezoid · CH3 square · CH4 wave packet.
+ */
+import { SWEEP_PERIOD, packetPath, sinePath, squarePath, trapezoidPath } from './traces';
+
+interface Props {
+  /** Faraday's fingertip in stage coordinates. The whole drawing is shifted so the spark starts there. */
+  tip: { x: number; y: number };
+  /** Visible window of the 1440×900 drawing space, as an SVG viewBox string. Must match the stage. */
+  viewBox: string;
+}
+
+/** Where the spark starts in the drawing's own coordinates (left end of the spark polyline). */
+const SPARK_START = { x: 655, y: 508 };
+const { tip, viewBox } = Astro.props;
+const shift = `translate(${(tip.x - SPARK_START.x).toFixed(1)} ${(tip.y - SPARK_START.y).toFixed(1)})`;
+
+/** Screen rectangle in stage coordinates: 10 × 8 divisions. */
+const screen = { x: 934, y: 412, w: 236, h: 168 };
+const div = { x: screen.w / 10, y: screen.h / 8 };
+const center = { x: screen.x + screen.w / 2, y: screen.y + screen.h / 2 };
+
+/** One lane per channel, centered on divisions 1, 3, 5 and 7. */
+const laneY = [1, 3, 5, 7].map((n) => screen.y + (n * screen.h) / 8);
+const lane = (y: number) => ({ x0: screen.x, length: screen.w + SWEEP_PERIOD, y, amp: 11 });
+
+/** Channel traces, top to bottom. `stroke` is a Tailwind class (token color). */
+const traces = [
+  { d: sinePath(lane(laneY[0])), stroke: 'stroke-phosphor', fill: 'fill-phosphor' },
+  { d: trapezoidPath(lane(laneY[1])), stroke: 'stroke-ch2-strong', fill: 'fill-ch2-strong' },
+  { d: squarePath(lane(laneY[2])), stroke: 'stroke-ch3-strong', fill: 'fill-ch3-strong' },
+  { d: packetPath(lane(laneY[3])), stroke: 'stroke-ch4-strong', fill: 'fill-ch4-strong' },
+];
+
+/** Minor ticks along the center crosshair (5 per division). */
+const ticks = [
+  ...Array.from({ length: 51 }, (_, i) => {
+    const x = screen.x + (i * div.x) / 5;
+    return `M${x} ${center.y - 2}V${center.y + 2}`;
+  }),
+  ...Array.from({ length: 41 }, (_, i) => {
+    const y = screen.y + (i * div.y) / 5;
+    return `M${center.x - 2} ${y}H${center.x + 2}`;
+  }),
+].join('');
+
+/** Front-panel knobs: center, radius and indicator angle (degrees, 0 = up). */
+const knobs = [
+  { cx: 1210, cy: 440, r: 16, angle: -40 },
+  { cx: 1252, cy: 440, r: 10, angle: 30 },
+  { cx: 1210, cy: 486, r: 10, angle: 120 },
+  { cx: 1252, cy: 486, r: 16, angle: 200 },
+];
+
+/** BNC inputs under the screen, one per channel. CH1 receives the probe. */
+const inputs = traces.map((t, i) => ({ cx: 952 + i * 44, cy: 628, fill: t.fill }));
+---
+
+<svg
+  aria-hidden="true"
+  viewBox={viewBox}
+  class="pointer-events-none absolute inset-0 size-full overflow-visible"
+  fill="none"
+>
+  <defs>
+    <clipPath id="scope-screen">
+      <rect x={screen.x} y={screen.y} width={screen.w} height={screen.h} rx="6"></rect>
+    </clipPath>
+    <pattern
+      id="scope-grid"
+      x={screen.x}
+      y={screen.y}
+      width={div.x}
+      height={div.y}
+      patternUnits="userSpaceOnUse"
+    >
+      <path d={`M${div.x} 0V${div.y}M0 ${div.y}H${div.x}`} class="stroke-graphite" stroke-width="1"></path>
+    </pattern>
+    <filter id="scope-glow" x="-10%" y="-50%" width="120%" height="200%">
+      <feGaussianBlur stdDeviation="1.6" result="blur"></feGaussianBlur>
+      <feMerge>
+        <feMergeNode in="blur"></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <g transform={shift}>
+  <!-- Mantle: the blue cloak the scope rests on -->
+  <path
+    d="M860 540 C860 400 1010 340 1170 350 C1300 360 1350 460 1330 570 C1310 680 1190 730 1050 712 C930 698 860 640 860 540Z"
+    class="fill-ch1-deep/70 stroke-electric/35"
+    stroke-width="1.2"></path>
+
+  <!-- Carry handle -->
+  <path d="M972 394V380a12 12 0 0 1 12-12H1216a12 12 0 0 1 12 12V394" class="stroke-electric/60" stroke-width="1.6"></path>
+  <path d="M984 394V386a6 6 0 0 1 6-6H1210a6 6 0 0 1 6 6V394" class="stroke-electric/30" stroke-width="1.2"></path>
+
+  <!-- Feet -->
+  <rect x="934" y="664" width="40" height="10" rx="3" class="fill-void stroke-electric/50" stroke-width="1.2"></rect>
+  <rect x="1226" y="664" width="40" height="10" rx="3" class="fill-void stroke-electric/50" stroke-width="1.2"></rect>
+
+  <!-- Body -->
+  <rect x="914" y="392" width="372" height="276" rx="18" class="fill-carbon stroke-electric/70" stroke-width="1.6"></rect>
+  <path d="M1182 408V652" class="stroke-graphite" stroke-width="1.2"></path>
+
+  <!-- Screen: bezel, graticule, crosshair -->
+  <rect x="926" y="404" width="252" height="184" rx="10" class="fill-void stroke-graphite" stroke-width="2"></rect>
+  <rect x={screen.x} y={screen.y} width={screen.w} height={screen.h} rx="6" class="fill-ch1-deep/40"></rect>
+  <rect x={screen.x} y={screen.y} width={screen.w} height={screen.h} rx="6" fill="url(#scope-grid)"></rect>
+  <path
+    d={`M${screen.x} ${center.y}H${screen.x + screen.w}M${center.x} ${screen.y}V${screen.y + screen.h}`}
+    class="stroke-ch2-strong/25"
+    stroke-width="1"></path>
+  <path d={ticks} class="stroke-ch2-strong/25" stroke-width="1"></path>
+
+  <!-- Traces: scroll right-to-left, one channel per career branch -->
+  <g clip-path="url(#scope-screen)">
+    <g filter="url(#scope-glow)" class="animate-[scope-sweep_6s_linear_infinite]">
+      {
+        traces.map((t) => (
+          <path d={t.d} class={t.stroke} stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" />
+        ))
+      }
+    </g>
+  </g>
+
+  <!-- Channel markers on the screen's left edge -->
+  {
+    traces.map((t, i) => (
+      <path d={`M927 ${laneY[i] - 4}L933 ${laneY[i]}L927 ${laneY[i] + 4}Z`} class={t.fill} />
+    ))
+  }
+
+  <!-- Knobs -->
+  {
+    knobs.map((k) => (
+      <g>
+        <circle cx={k.cx} cy={k.cy} r={k.r} class="fill-void stroke-electric/70" stroke-width="1.3" />
+        <circle cx={k.cx} cy={k.cy} r={k.r - 4} class="stroke-graphite" stroke-width="1" />
+        <path
+          d={`M${k.cx} ${k.cy}V${k.cy - k.r + 3}`}
+          transform={`rotate(${k.angle} ${k.cx} ${k.cy})`}
+          class="stroke-ice"
+          stroke-width="1.6"
+          stroke-linecap="round"
+        />
+      </g>
+    ))
+  }
+
+  <!-- Channel select buttons with LEDs -->
+  {
+    traces.map((t, i) => (
+      <g>
+        <circle cx={1200 + i * 20} cy="522" r="2" class={t.fill} />
+        <rect x={1192 + i * 20} y="530" width="16" height="10" rx="3" class="fill-void stroke-electric/50" stroke-width="1" />
+      </g>
+    ))
+  }
+
+  <!-- Run / stop -->
+  <rect x="1192" y="556" width="36" height="14" rx="4" class="fill-void stroke-phosphor/70" stroke-width="1.2"></rect>
+  <rect x="1234" y="556" width="36" height="14" rx="4" class="fill-void stroke-electric/50" stroke-width="1.2"></rect>
+
+  <!-- Power -->
+  <circle cx="1256" cy="628" r="8" class="fill-void stroke-electric/50" stroke-width="1.2"></circle>
+  <path d="M1256 623V628M1252.5 625a5 5 0 1 0 7 0" class="stroke-ice/70" stroke-width="1.2" stroke-linecap="round"></path>
+
+  <!-- BNC inputs -->
+  {
+    inputs.map((b) => (
+      <g>
+        <circle cx={b.cx} cy={b.cy - 18} r="2" class={b.fill} />
+        <circle cx={b.cx} cy={b.cy} r="9" class="fill-void stroke-ch2-strong" stroke-width="1.6" />
+        <circle cx={b.cx} cy={b.cy} r="3.5" class="fill-graphite" />
+      </g>
+    ))
+  }
+
+  <!-- Probe: cable into CH1, body, tip -->
+  <path d="M812 508C870 508 880 628 943 628" class="stroke-electric/80" stroke-width="4" stroke-linecap="round"></path>
+  <rect x="799" y="500" width="14" height="16" rx="3" class="fill-graphite stroke-ch2-strong" stroke-width="1.2"></rect>
+  <path d="M712 499L800 494L800 522L712 517Z" class="fill-graphite stroke-ch2-strong" stroke-width="1.4"></path>
+  <path d="M736 498.5V517.5M744 498V518M752 497.5V518.5" class="stroke-ch2-strong/50" stroke-width="1"></path>
+  <path d="M688 508H712" class="stroke-ice" stroke-width="3" stroke-linecap="round"></path>
+
+  <!-- Spark between the finger and the probe tip -->
+  <g class="animate-[scope-spark_2.4s_ease-in-out_infinite]">
+    <circle cx="671" cy="508" r="40" class="fill-phosphor/12"></circle>
+    <polyline
+      points="655,508 660,502 665,514 671,500 677,514 682,504 688,508"
+      class="stroke-ice drop-shadow-[0_0_6px_var(--color-phosphor)]"
+      stroke-width="2"
+      stroke-linejoin="round"></polyline>
+  </g>
+  </g>
+</svg>
+
+<style>
+  @keyframes scope-sweep {
+    to {
+      transform: translateX(-118px); /* = SWEEP_PERIOD in traces.ts */
+    }
+  }
+  @keyframes scope-spark {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.55;
+    }
+  }
+</style>

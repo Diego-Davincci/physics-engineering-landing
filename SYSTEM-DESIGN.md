@@ -112,7 +112,10 @@ Transparent at top; on scroll → `carbon` with 1px `grafito` bottom border.
 
 ## 5. Motion
 
-- Motion should feel like a signal: quick, precise, purposeful. No decorative bounce.
-- **`prefers-reduced-motion`: everything static.** No exceptions.
+- Motion should feel like a signal: quick, precise, purposeful.
 
 ---
+
+## 6. Frame Prototypes
+
+All protoypes designed live in this URL: https://claude.ai/artifact/MJVhMQEZQjrRFCj2v8R3UH#page-eb62782fa9b9

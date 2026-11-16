@@ -1,0 +1,60 @@
+---
+/**
+ * Home hero — "★ HERO PRINCIPAL · Faraday en pose de fresco".
+ * Always exactly one screen tall. The text sits at the top; below it, a "stage"
+ * holding Faraday and the oscilloscope scales to fit the remaining height, so the
+ * image and the SVG stay aligned and the probe always meets the finger.
+ * Below lg the stage keeps a minimum width and centers on the finger–probe gap.
+ */
+import { Image } from 'astro:assets';
+import faraday from '../../assets/hero/faraday.png';
+import Oscilloscope from './Oscilloscope.astro';
+
+/**
+ * Visible window of the 1440-wide drawing space (only the band that has artwork).
+ * Its aspect ratio (1440/600 = 2.4) is used in the stage's width formula below.
+ */
+const VIEW = { x: 0, y: 290, w: 1440, h: 600 };
+
+/** Faraday's box in drawing units: left edge, rendered width and bottom edge. */
+const figure = { x: 40, w: 1000, bottom: 880 };
+const figureH = (figure.w * faraday.height) / faraday.width;
+const figureTop = figure.bottom - figureH;
+
+/** Fingertip position inside the cutout, as a fraction of its size (measured on the source image). */
+const FINGERTIP = { x: 0.6898, y: 0.3138 };
+const tip = { x: figure.x + FINGERTIP.x * figure.w, y: figureTop + FINGERTIP.y * figureH };
+
+/** Percent helpers so the image is placed in the same coordinates as the SVG. */
+const pctX = (v: number) => `${(((v - VIEW.x) / VIEW.w) * 100).toFixed(3)}%`;
+const pctY = (v: number) => `${(((v - VIEW.y) / VIEW.h) * 100).toFixed(3)}%`;
+---
+
+<section aria-labelledby="hero-title" class="relative h-svh min-h-140 overflow-hidden">
+  <div class="absolute inset-x-0 top-30 z-10 flex flex-col items-center px-4 text-center md:top-34">
+    <p class="type-eyebrow text-muted">UNAL · Sede Medellín · Facultad de Ciencias</p>
+    <h1 id="hero-title" class="mt-4 type-hero">Ingeniería Física</h1>
+    <p class="mt-5 type-lead text-muted">Donde la ciencia toca la instrumentación.</p>
+  </div>
+
+  <!--
+    Stage: fits under the text (≤ 100svh − 300px tall, × 2.4 for the 1440/600 ratio) and is
+    capped at 1152px wide, so Faraday renders at ~800px — close to the cutout's native
+    1312px and sharp on 2× screens. Its top-center is empty, so it may slide behind the tagline.
+  -->
+  <div
+    class="absolute bottom-[4svh] left-1/2 aspect-1440/600 w-[max(900px,min(100vw,1152px,calc((100svh-300px)*2.4)))] translate-x-[-57%] lg:bottom-[3svh] lg:-translate-x-1/2"
+  >
+    <Image
+      src={faraday}
+      alt="Michael Faraday reclinado como el Adán de Miguel Ángel, extendiendo el dedo hacia la punta de la sonda de un osciloscopio"
+      widths={[640, 1000, 1312]}
+      sizes="(min-width: 1024px) 800px, 625px"
+      loading="eager"
+      fetchpriority="high"
+      class="absolute h-auto"
+      style={`left: ${pctX(figure.x)}; top: ${pctY(figureTop)}; width: ${(figure.w / VIEW.w) * 100}%;`}
+    />
+    <Oscilloscope tip={tip} viewBox={`${VIEW.x} ${VIEW.y} ${VIEW.w} ${VIEW.h}`} />
+  </div>
+</section>
