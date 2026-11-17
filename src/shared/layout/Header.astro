@@ -10,14 +10,20 @@
  * - The panel opens like the oscilloscope powering on: a bright line that unfolds, then the
  *   links arrive one by one, each lighting its dot and sweeping its trace once.
  * - Closes with Esc, the backdrop, a link, or growing to lg. The page doesn't scroll behind it.
+ *
+ * Once the page scrolls, a soft void gradient fades in behind the whole header so content
+ * passing underneath never clashes with the monogram or the call to action.
  */
 
-/** Main navigation. `trace` is the token color of each link's trace; `href` is a placeholder. */
+/** Main navigation. `trace` is the token color of each link's trace; `#` hrefs are placeholders. */
 const links = [
-  { label: 'Malla curricular', href: '#', trace: 'var(--color-phosphor)' },
+  { label: 'Malla curricular', href: '/malla-curricular', trace: 'var(--color-phosphor)' },
   { label: 'Préstamos', href: '#', trace: 'var(--color-ch3-strong)' },
   { label: '¿A quién acudo?', href: '#', trace: 'var(--color-parchment)' },
 ];
+
+/** Path of the current page without a trailing slash, to mark its link with aria-current. */
+const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
 
 /** Hover trace: a sine 150 units long in a 120-unit box, so it can ride 30 units (2 periods) and loop. */
 const wave = 'M0 5 Q7.5 0 15 5 T30 5 T45 5 T60 5 T75 5 T90 5 T105 5 T120 5 T135 5 T150 5';
@@ -27,6 +33,12 @@ const island =
 ---
 
 <header data-menu="closed" class="group/header fixed inset-x-0 top-3 z-50 md:top-5">
+  <!-- Scrim: once the page scrolls, content fades into the void under the header instead of clashing with it. -->
+  <div
+    aria-hidden="true"
+    class="pointer-events-none absolute inset-x-0 -top-3 h-28 bg-linear-to-b from-void via-void/75 to-transparent opacity-0 transition-opacity duration-300 group-data-scrolled/header:opacity-100 md:-top-5 md:h-32"
+  >
+  </div>
   <!-- Backdrop behind the open mobile menu; tapping it closes the menu. -->
   <div
     data-menu-backdrop
@@ -53,8 +65,9 @@ const island =
             <li>
               <a
                 href={link.href}
+                aria-current={link.href === currentPath ? 'page' : undefined}
                 style={`--trace: ${link.trace}`}
-                class="group relative flex h-11 items-center gap-2 rounded-full px-4.5 type-nav text-muted transition-colors duration-250 hover:bg-ice/6 hover:text-foreground focus-visible:bg-ice/6 focus-visible:text-foreground"
+                class="group relative flex h-11 items-center gap-2 rounded-full px-4.5 type-nav text-muted transition-colors aria-[current=page]:text-foreground duration-250 hover:bg-ice/6 hover:text-foreground focus-visible:bg-ice/6 focus-visible:text-foreground"
               >
                 <span
                   aria-hidden="true"
@@ -140,8 +153,9 @@ const island =
                 <a
                   href={link.href}
                   data-menu-link
+                  aria-current={link.href === currentPath ? 'page' : undefined}
                   style={`--trace: ${link.trace}`}
-                  class="group relative flex h-12 items-center gap-3 rounded-full px-4 type-nav text-muted transition-colors hover:bg-ice/6 hover:text-foreground focus-visible:bg-ice/6 focus-visible:text-foreground"
+                  class="group relative flex h-12 items-center gap-3 rounded-full px-4 type-nav text-muted transition-colors aria-[current=page]:text-foreground hover:bg-ice/6 hover:text-foreground focus-visible:bg-ice/6 focus-visible:text-foreground"
                 >
                   <span
                     aria-hidden="true"
@@ -176,6 +190,13 @@ const island =
 <script>
   const header = document.querySelector<HTMLElement>('header[data-menu]');
   const toggle = header?.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+
+  if (header) {
+    /** Shows the scrim as soon as the page leaves the top. */
+    const syncScrolled = () => header.toggleAttribute('data-scrolled', window.scrollY > 8);
+    window.addEventListener('scroll', syncScrolled, { passive: true });
+    syncScrolled();
+  }
 
   if (header && toggle) {
     const lg = window.matchMedia('(min-width: 64rem)');

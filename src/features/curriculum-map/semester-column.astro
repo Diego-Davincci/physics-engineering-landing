@@ -1,20 +1,31 @@
 ---
 /**
  * One semester of the map: header with its credit total, then its cards top to bottom.
- * Below md the cards wrap in a grid (the semesters stack); from md it is a single column.
+ * Below md the cards wrap in a grid (the semesters stack); from md it is a single column
+ * that lights up when the map's beam crosses it.
  */
-import CourseCard from './CourseCard.astro';
+import CourseCard from './course-card.astro';
 import type { Semester } from './curriculum';
 
 interface Props {
   /** Semester to draw. */
   semester: Semester;
+  /** 0-based column position, used to time the beam sweep. */
+  index: number;
 }
 
-const { semester } = Astro.props;
+const { semester, index } = Astro.props;
+
+/** The beam crosses one column every 130ms (1300ms sweep / 10 columns, see map-viewport.astro). */
+const beamDelay = `animation-delay: ${index * 130 + 40}ms`;
 ---
 
-<section aria-labelledby={`semester-${semester.number}`} class="flex flex-col gap-3 md:w-48 md:shrink-0">
+<section
+  data-map-column
+  aria-labelledby={`semester-${semester.number}`}
+  style={beamDelay}
+  class="flex flex-col gap-3 md:w-48 md:shrink-0 md:group-data-[beam=armed]/map:opacity-10 md:group-data-[beam=on]/map:animate-[map-column-on_900ms_ease-out_both]"
+>
   <header class="flex h-9 items-center justify-between border-b border-graphite">
     <h2 id={`semester-${semester.number}`} class="type-eyebrow text-foreground">
       Semestre {semester.numeral}

@@ -4,17 +4,17 @@
  * Elective groups get a dashed swatch, like their seats on the map.
  */
 import type { Group } from './curriculum';
-import { freeStyle, groupStyle } from './group-styles';
+import { byGroupOrder, freeStyle, groupStyle } from './group-styles';
 
 interface Props {
-  /** Every course group, in display order. */
+  /** Every course group. */
   groups: Group[];
 }
 
 const { groups } = Astro.props;
 
 const items = [
-  ...groups.map((group) => ({ label: group.label, style: groupStyle(group.id), dashed: group.elective })),
+  ...[...groups].sort((a, b) => byGroupOrder(a.id, b.id)).map((group) => ({ label: group.label, style: groupStyle(group.id), dashed: group.elective })),
   { label: 'Libre elección', style: freeStyle, dashed: true },
 ];
 ---

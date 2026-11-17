@@ -19,25 +19,29 @@ const { card } = Astro.props;
 const style = card.kind === 'free' ? freeStyle : groupStyle(card.group.id);
 const code = card.kind === 'course' ? card.code : card.kind === 'elective' ? 'Optativa' : 'Libre';
 const tag = card.kind === 'free' ? 'Cualquier asignatura' : card.group.label;
-const name = card.kind === 'elective' ? `${card.name} · ${card.group.label}` : card.name;
+/** Elective seats read "Optativa I · Instrumentación" to screen readers, since the group is only a tag visually. */
+const spokenName = card.kind === 'elective' ? `${card.name} · ${card.group.label}` : card.name;
+
+/** Zoomed far out on the map the text is unreadable, so it fades and only the colors remain. */
+const fade = 'transition-opacity duration-200 md:group-data-[detail=low]/map:opacity-0';
 ---
 
 <article
-  aria-label={`${name}, ${card.credits} créditos`}
+  aria-label={`${spokenName}, ${card.credits} créditos`}
   class:list={[
     'flex min-h-24 flex-col justify-between gap-1.5 rounded-lg border px-3 py-2.5 md:h-28 md:w-48',
     style.border,
     card.kind === 'course' ? style.bg : 'border-dashed bg-transparent',
   ]}
 >
-  <p aria-hidden="true" class="flex justify-between gap-2 type-data text-muted">
+  <p aria-hidden="true" class:list={['flex justify-between gap-2 type-data text-muted', fade]}>
     <span class="truncate">{code}</span>
     <span class="shrink-0 text-foreground">{card.credits} cr</span>
   </p>
-  <p aria-hidden="true" class:list={['line-clamp-2 type-small font-medium', card.kind === 'free' ? 'text-muted' : 'text-foreground']}>
-    {card.kind === 'elective' ? card.name : name}
+  <p aria-hidden="true" class:list={['line-clamp-2 type-small font-medium', card.kind === 'free' ? 'text-muted' : 'text-foreground', fade]}>
+    {card.name}
   </p>
-  <p aria-hidden="true" class:list={['truncate text-[11px] leading-4 font-semibold tracking-[0.08em] uppercase', style.text]}>
+  <p aria-hidden="true" class:list={['truncate text-[11px] leading-4 font-semibold tracking-[0.08em] uppercase', style.text, fade]}>
     {tag}
   </p>
 </article>

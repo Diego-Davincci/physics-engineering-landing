@@ -28,6 +28,28 @@ const styles: Record<string, GroupStyle> = {
   economics: { border: 'border-pink-400', bg: 'bg-pink-950', text: 'text-pink-200' },
 };
 
+/** Legend order: required groups first, then the elective ones (as in the prototype). */
+const order = [
+  'math',
+  'physics',
+  'chemistry',
+  'computing',
+  'design',
+  'professional-physics',
+  'electronics',
+  'thesis',
+  'basic-science',
+  'instrumentation',
+  'economics',
+];
+
+/**
+ * Sort comparator for groups by legend order (collections don't keep file order).
+ * @param a - first group id
+ * @param b - second group id
+ */
+export const byGroupOrder = (a: string, b: string): number => order.indexOf(a) - order.indexOf(b);
+
 /** Free-choice seats (libre elección) have no group: dashed and neutral. */
 export const freeStyle: GroupStyle = { border: 'border-subtle', bg: 'bg-transparent', text: 'text-muted' };
 

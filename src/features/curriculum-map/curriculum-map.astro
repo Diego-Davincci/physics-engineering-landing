@@ -1,0 +1,48 @@
+---
+/**
+ * Curriculum map page section — "Malla v0.3": every semester with its courses, colored by group.
+ * Below md the semesters stack. From md they sit side by side on a pannable, zoomable
+ * canvas (MapViewport) that powers on with a beam sweep.
+ */
+import { getCollection } from 'astro:content';
+import { buildSemesters, toGroups } from './curriculum';
+import Legend from './legend.astro';
+import MapViewport from './map-viewport.astro';
+import SemesterColumn from './semester-column.astro';
+
+const [plan, courses, groupEntries] = await Promise.all([
+  getCollection('studyPlan'),
+  getCollection('courses'),
+  getCollection('groups'),
+]);
+const semesters = buildSemesters(plan, courses, groupEntries);
+const groups = toGroups(groupEntries);
+const totalCredits = semesters.reduce((sum, semester) => sum + semester.credits, 0);
+---
+
+<section aria-labelledby="curriculum-title" class="pt-28 pb-16 md:pt-36 md:pb-24">
+  <div class="mx-auto flex max-w-page flex-col gap-6 px-4 md:px-10">
+    <div class="flex flex-col gap-3">
+      <p class="type-eyebrow text-muted">
+        Plan de estudios · Acuerdo 0014 de 2025 · {courses.length} asignaturas · {totalCredits} créditos
+      </p>
+      <h1 id="curriculum-title" class="type-display">Malla curricular</h1>
+      <p class="max-w-2xl type-lead text-muted">Los diez semestres de Ingeniería Física, materia por materia.</p>
+    </div>
+    <Legend groups={groups} />
+  </div>
+
+  <div class="mt-10">
+    <MapViewport>
+      <ol class="flex flex-col gap-10 md:flex-row md:gap-4">
+        {
+          semesters.map((semester, index) => (
+            <li>
+              <SemesterColumn semester={semester} index={index} />
+            </li>
+          ))
+        }
+      </ol>
+    </MapViewport>
+  </div>
+</section>

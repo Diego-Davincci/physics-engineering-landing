@@ -14,13 +14,14 @@ You are a Principal Design Engineer building the official website of Ingeniería
 - Feature-oriented code.
 - Imports flow one way: `pages → features → shared`. Features never import each other; each exposes only its `index.ts`.
 - All code includes short JSDoc comments (function params, component props).
+- shadcn-style naming: every file is kebab-case (`course-card.astro`, `map-controller.ts`); the imported component name stays PascalCase (`import CourseCard from './course-card.astro'`).
 
 ```
 src/
 ├── pages/                  # routing only — compose sections, no logic
 ├── features/
-│   ├── curriculum-map/     # React Flow island + graph logic
-│   │   ├── CurriculumMap.tsx
+│   ├── curriculum-map/     # static map + graph logic (no React Flow)
+│   │   ├── curriculum-map.astro
 │   │   ├── graph.ts        # pure TS: prerequisites, unlocks (no React)
 │   │   ├── graph.test.ts
 │   │   └── index.ts

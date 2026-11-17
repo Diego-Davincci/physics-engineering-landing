@@ -1,2 +1,2 @@
 /** Home hero section. */
-export { default as Hero } from './Hero.astro';
+export { default as Hero } from './hero.astro';

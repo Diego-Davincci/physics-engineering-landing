@@ -1,0 +1,104 @@
+---
+/**
+ * Canvas frame for the curriculum map. From md up it is a fixed-height window on a dotted
+ * scope grid: the slotted content is the "stage" that map-controller.ts pans and zooms,
+ * with zoom controls at the bottom right and a one-time beam sweep. Below md it is a plain
+ * block and the slotted content flows normally.
+ *
+ * Children can react to the map through the `group/map` variants:
+ * - `data-detail="low"`: zoomed out too far to read — hide text.
+ * - `data-beam="armed" | "on"`: before / during the power-on sweep.
+ */
+
+const control =
+  'flex size-11 cursor-pointer items-center justify-center rounded-full text-muted transition-colors hover:bg-ice/6 hover:text-foreground disabled:cursor-default disabled:opacity-35 disabled:hover:bg-transparent';
+---
+
+<div
+  data-map-viewport
+  role="region"
+  aria-label="Mapa de la malla. Arrastra para moverte; con el mapa enfocado usa las flechas para pasar de semestre, + y − para acercar o alejar, y 0 para verlo completo."
+  class:list={[
+    'group/map relative px-4',
+    'md:h-[clamp(30rem,calc(100dvh-7rem),54rem)] md:cursor-grab md:touch-pan-y md:overflow-hidden md:px-0 md:select-none data-dragging:cursor-grabbing',
+    'md:bg-[radial-gradient(var(--color-graphite)_1px,transparent_1px)] md:bg-size-[24px_24px]',
+    'md:border-y md:border-graphite',
+  ]}
+>
+  <div data-map-stage class="md:absolute md:top-0 md:left-0 md:w-max md:origin-top-left md:will-change-transform">
+    <!-- The beam: a vertical phosphor line that crosses the stage once. -->
+    <div
+      aria-hidden="true"
+      class="pointer-events-none absolute -inset-y-6 left-0 z-10 hidden w-px bg-ice opacity-0 shadow-[0_0_14px_3px_var(--color-phosphor)] md:block md:group-data-[beam=on]/map:animate-[map-beam_1300ms_linear_both]"
+    >
+    </div>
+    <slot />
+  </div>
+
+  <div
+    data-map-controls
+    class="absolute right-4 bottom-4 z-20 hidden cursor-default items-center gap-1 rounded-full border border-graphite bg-carbon/85 p-1 shadow-[0_10px_30px_rgb(0_0_0/0.45)] backdrop-blur-[14px] md:flex"
+  >
+    <button type="button" data-zoom="out" aria-label="Alejar" class={control}>
+      <svg aria-hidden="true" viewBox="0 0 16 16" class="size-4 stroke-current" fill="none" stroke-width="1.6" stroke-linecap="round">
+        <path d="M3 8h10"></path>
+      </svg>
+    </button>
+    <output data-zoom-level aria-live="polite" class="w-14 text-center type-data text-foreground">100 %</output>
+    <button type="button" data-zoom="in" aria-label="Acercar" class={control}>
+      <svg aria-hidden="true" viewBox="0 0 16 16" class="size-4 stroke-current" fill="none" stroke-width="1.6" stroke-linecap="round">
+        <path d="M3 8h10M8 3v10"></path>
+      </svg>
+    </button>
+    <span aria-hidden="true" class="mx-1 h-5 w-px bg-graphite"></span>
+    <button
+      type="button"
+      data-zoom="fit"
+      class="h-11 cursor-pointer rounded-full px-4 type-small font-medium text-muted transition-colors hover:bg-ice/6 hover:text-foreground"
+    >
+      Ver todo
+    </button>
+  </div>
+
+  <p aria-hidden="true" class="pointer-events-none absolute bottom-6 left-6 z-20 hidden type-data text-subtle lg:block">
+    Arrastra para moverte · Ctrl + rueda o pellizca para acercar
+  </p>
+</div>
+
+<script>
+  import './map-controller';
+</script>
+
+<style is:global>
+  /* Power-on sweep (map-controller.ts sets data-beam="on"). Global because the column
+     animation is applied in semester-column.astro. */
+  @keyframes map-beam {
+    0% {
+      left: 0%;
+      opacity: 0;
+    }
+    6%,
+    88% {
+      opacity: 1;
+    }
+    100% {
+      left: 100%;
+      opacity: 0;
+    }
+  }
+  /* A semester lights up as the beam crosses it: dim → overbright → resting glow. */
+  @keyframes map-column-on {
+    0% {
+      opacity: 0.1;
+      filter: brightness(1);
+    }
+    35% {
+      opacity: 1;
+      filter: brightness(1.7);
+    }
+    100% {
+      opacity: 1;
+      filter: brightness(1);
+    }
+  }
+</style>
