@@ -26,12 +26,12 @@ src/
 │   │   ├── graph.test.ts
 │   │   └── index.ts
 │   ├── equipment-loan/
-│   └── representatives/
+│   └── team/               # "Nuestro equipo": hanging ID cards
 ├── shared/
 │   ├── ui/                 # Button, Card, Badge (design system primitives)
 │   ├── layout/             # BaseLayout, Header, Footer
 │   └── lib/                # pure helpers
-├── content/                # Content Collections: courses, reps, equipment
+├── content/                # Content Collections: courses, equipment, team
 └── styles/                 # Tailwind + design tokens
 ```
 

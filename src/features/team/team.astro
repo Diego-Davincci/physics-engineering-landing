@@ -1,0 +1,36 @@
+---
+/**
+ * Team page section ("Nuestro equipo") — Q2 "Los carnés": the people in charge of the
+ * program, each as an ID card hanging from a rail. No photos for now.
+ * Four across at lg (sharing one full-bleed rail), two at sm, one on phones.
+ */
+import { getCollection } from 'astro:content';
+import IdCard from './id-card.astro';
+import { swing } from './team';
+
+const people = (await getCollection('people')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<section aria-labelledby="team-title" class="overflow-x-clip pt-28 pb-16 md:pt-36 md:pb-24">
+  <div class="mx-auto flex max-w-page flex-col gap-12 px-4 md:px-10 lg:gap-0">
+    <div class="flex flex-col gap-4 lg:pb-14">
+      <p class="type-eyebrow text-parchment">Las personas detrás de la carrera</p>
+      <h1 id="team-title" class="type-display">Nuestro equipo</h1>
+      <p class="max-w-2xl type-lead text-muted">
+        Quienes sostienen la carrera día a día. Cada carné te dice para qué acudir a cada persona.
+      </p>
+    </div>
+
+    <ul
+      class="relative grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-4 lg:before:absolute lg:before:top-0 lg:before:left-1/2 lg:before:h-1.5 lg:before:w-screen lg:before:-translate-x-1/2 lg:before:bg-graphite"
+    >
+      {
+        people.map((person, index) => (
+          <li>
+            <IdCard {...person.data} {...swing(index)} delay={150 + index * 100} id={person.id} />
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "nerio-montoya",
+    "order": 1,
+    "name": "Prof. Nerio Montoya",
+    "area": "Área curricular",
+    "title": "Director del Área Curricular de Física",
+    "helpsWith": ["Plan de estudios", "Homologaciones", "Solicitudes académicas"],
+    "channel": "ch1"
+  },
+  {
+    "id": "jairo-marin",
+    "order": 2,
+    "name": "Prof. Jairo Humberto Marín Cadavid",
+    "area": "Departamento",
+    "title": "Director del Departamento de Física",
+    "helpsWith": ["Asuntos del departamento", "Casos escalados del laboratorio"],
+    "channel": "ch4"
+  },
+  {
+    "id": "monica",
+    "order": 3,
+    "name": "Mónica",
+    "area": "Secretaría",
+    "title": "Secretaria Jefe",
+    "helpsWith": ["Trámites", "Certificados", "Solicitudes"],
+    "channel": "parchment"
+  },
+  {
+    "id": "diego-londono",
+    "order": 4,
+    "name": "Diego Alejandro Londoño Jiménez",
+    "area": "Laboratorio",
+    "title": "Jefe del Laboratorio de Física",
+    "helpsWith": ["Préstamos", "Casilleros", "Equipos de electrónica"],
+    "channel": "ch3"
+  }
+]

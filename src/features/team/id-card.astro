@@ -1,0 +1,113 @@
+---
+/**
+ * One hanging ID card ("carné", Q2 · Los carnés): a strap from the rail, a clip, and the
+ * card with the person's monogram, name, position and what to come to them for.
+ *
+ * On load it swings in once like a damped pendulum around the clip and settles at its
+ * resting tilt (keyframes at the bottom). With reduced motion it just hangs at rest.
+ */
+import { initials } from './team';
+
+interface Props {
+  name: string;
+  area: string;
+  title: string;
+  helpsWith: string[];
+  channel: 'ch1' | 'ch2' | 'ch3' | 'ch4' | 'parchment';
+  /** Resting tilt, in degrees. */
+  rest: number;
+  /** Initial push of the swing, in degrees (sign = side). */
+  kick: number;
+  /** Swing start, in milliseconds, to stagger the row. */
+  delay: number;
+  /** Prefix for the element ids inside the card. */
+  id: string;
+}
+
+const { name, area, title, helpsWith, channel, rest, kick, delay, id } = Astro.props;
+
+/** strong = strap, border, barcode · soft = text. Parchment is a single tone. */
+const tone =
+  channel === 'parchment'
+    ? { strong: 'var(--color-parchment)', soft: 'var(--color-parchment)' }
+    : { strong: `var(--color-${channel}-strong)`, soft: `var(--color-${channel}-soft)` };
+
+const style = [
+  `--strong: ${tone.strong}`,
+  `--soft: ${tone.soft}`,
+  `--rest: ${rest}deg`,
+  `--kick: ${kick}deg`,
+  `animation-delay: ${delay}ms`,
+].join('; ');
+---
+
+<div
+  style={style}
+  class="mx-auto flex w-full max-w-sm origin-top rotate-(--rest) animate-[id-card-swing_3s_ease-in-out_both] flex-col items-center lg:max-w-none"
+>
+  <!-- Under lg each card hangs from its own short bar; at lg they share the section's rail. -->
+  <div aria-hidden="true" class="h-1.5 w-24 rounded-full bg-graphite lg:hidden"></div>
+  <div aria-hidden="true" class="h-10 w-3.5 bg-(--strong)/85 lg:h-16"></div>
+  <div aria-hidden="true" class="relative z-10 -mb-2 h-4 w-6.5 rounded-control border-2 border-muted bg-void"></div>
+
+  <article
+    aria-labelledby={`${id}-name`}
+    class="flex w-full flex-col gap-3 rounded-control border border-t-8 border-graphite border-t-(--strong) bg-carbon px-5 pt-6.5 pb-4.5 shadow-[0_24px_40px_rgb(0_0_0/0.5)]"
+  >
+    <div class="flex items-end gap-4">
+      <span
+        aria-hidden="true"
+        class="flex h-19 w-16 shrink-0 items-center justify-center rounded-control border border-(--strong)/60 bg-(--strong)/12 font-serif text-[32px] text-(--soft) italic"
+      >
+        {initials(name)}
+      </span>
+      <p class="type-eyebrow text-(--soft)">{area}</p>
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <h2 id={`${id}-name`} class="type-title text-foreground">{name}</h2>
+      <p class="type-small text-(--soft)">{title}</p>
+    </div>
+
+    <div class="flex flex-col gap-1.5 border-t border-graphite pt-2.5">
+      <p id={`${id}-helps`} class="type-eyebrow text-muted">Acude para</p>
+      <ul aria-labelledby={`${id}-helps`} class="flex flex-col gap-0.5 type-small">
+        {helpsWith.map((item) => <li>{item}</li>)}
+      </ul>
+    </div>
+
+    <div
+      aria-hidden="true"
+      class="mt-1 h-5.5 bg-[repeating-linear-gradient(90deg,var(--strong)_0_2px,transparent_2px_5px,var(--strong)_5px_6px,transparent_6px_10px,var(--strong)_10px_13px,transparent_13px_16px)] opacity-50"
+    >
+    </div>
+  </article>
+</div>
+
+<style is:global>
+  /*
+   * Damped pendulum around the clip. Each 20% step is half a swing (~0.6s, close to a
+   * real 40cm lanyard's 1.3s period); ease-in-out stops it at every extreme like a pendulum.
+   * The push shrinks by ~40% per swing until the card rests at --rest.
+   */
+  @keyframes id-card-swing {
+    0% {
+      rotate: calc(var(--rest) + var(--kick));
+    }
+    20% {
+      rotate: calc(var(--rest) - var(--kick) * 0.6);
+    }
+    40% {
+      rotate: calc(var(--rest) + var(--kick) * 0.36);
+    }
+    60% {
+      rotate: calc(var(--rest) - var(--kick) * 0.2);
+    }
+    80% {
+      rotate: calc(var(--rest) + var(--kick) * 0.08);
+    }
+    100% {
+      rotate: var(--rest);
+    }
+  }
+</style>

@@ -68,4 +68,24 @@ const equipment = defineCollection({
   ]),
 });
 
-export const collections = { groups, courses, studyPlan, equipment };
+/**
+ * People of the program shown on /nuestro-equipo, one ID card each.
+ * `order` sets the display order; `channel` picks the card's color.
+ */
+const people = defineCollection({
+  loader: file('src/content/team/people.json'),
+  schema: z.object({
+    order: z.number().int(),
+    /** Full name, with an academic prefix ("Prof.") when it applies. */
+    name: z.string(),
+    /** Office the person belongs to, shown as the eyebrow. */
+    area: z.string(),
+    /** Position, written in full. */
+    title: z.string(),
+    /** What students should come to this person for. */
+    helpsWith: z.array(z.string()).min(1),
+    channel: z.enum(['ch1', 'ch2', 'ch3', 'ch4', 'parchment']),
+  }),
+});
+
+export const collections = { groups, courses, studyPlan, equipment, people };
