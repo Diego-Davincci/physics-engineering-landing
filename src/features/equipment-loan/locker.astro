@@ -1,0 +1,138 @@
+---
+/**
+ * "P2 · El casillero abierto": an open locker drawn in the CH3 (electronics) line style,
+ * with the kit inside. A numbered badge sits on each piece of equipment; hovering, focusing
+ * or tapping a badge (or the matching receipt line) lights that piece and dims the rest
+ * (loan-controller.ts toggles `data-state` on every `[data-item]`).
+ */
+import type { KitItem } from './equipment-loan';
+
+interface Props {
+  /** Locker kit, numbered. Every id must have a drawing below. */
+  kit: KitItem[];
+}
+
+const { kit } = Astro.props;
+
+/** Visible window of the drawing, in its own units. */
+const VB = { x: 40, y: 116, w: 556, h: 960 };
+
+/** Badge center of each piece (its top-left corner), in drawing units. */
+const badgeAt: Record<string, { x: number; y: number }> = {
+  oscilloscope: { x: 170, y: 200 },
+  'dc-supply': { x: 150, y: 470 },
+  'signal-generator': { x: 360, y: 470 },
+  'power-cables': { x: 250, y: 874 },
+  'bnc-clip-cable': { x: 460, y: 880 },
+};
+
+const badges = kit.map((item) => {
+  const at = badgeAt[item.id];
+  if (!at) throw new Error(`locker.astro: no drawing for kit item "${item.id}"`);
+  return { ...item, left: `${((at.x - VB.x) / VB.w) * 100}%`, top: `${((at.y - VB.y) / VB.h) * 100}%` };
+});
+
+/** Classes of one piece of equipment: dims or glows with the shared selection. */
+const piece =
+  'stroke-ch3-soft transition-[opacity,filter] duration-200 data-[state=dim]:opacity-25 data-[state=on]:drop-shadow-[0_0_6px_var(--color-ch3-strong)]';
+---
+
+<figure class="flex flex-col items-center gap-4">
+  <div class="relative w-full max-w-[20rem] sm:max-w-sm lg:max-w-md">
+    <svg
+      role="img"
+      aria-label="Casillero abierto con osciloscopio, fuente DC, generador de señales y cables"
+      viewBox={`${VB.x} ${VB.y} ${VB.w} ${VB.h}`}
+      fill="none"
+      stroke-width="1.5"
+      class="block h-auto w-full"
+    >
+      <!-- The locker: open door on the left, body and two shelves. -->
+      <g class="stroke-ch3-strong" stroke-width="1.4">
+        <path d="M120 130 L56 172 L56 1062 L120 1040" class="stroke-ch3-strong/50"></path>
+        <path d="M72 240 L104 222 M72 268 L104 250 M72 296 L104 278 M72 324 L104 306" class="stroke-ch3-strong/35"></path>
+        <circle cx="70" cy="620" r="7" class="stroke-ch3-strong/50"></circle>
+        <rect x="120" y="130" width="460" height="910" rx="8" class="stroke-ch3-strong/70"></rect>
+        <path d="M120 420 H580 M120 700 H580" class="stroke-ch3-strong/50"></path>
+        <text x="136" y="1024" stroke="none" font-size="14" font-weight="600" letter-spacing="2" class="fill-ch3-soft">
+          CASILLERO · PISO 4
+        </text>
+      </g>
+
+      <g data-item="oscilloscope" class={piece}>
+        <rect x="170" y="200" width="360" height="200" rx="10"></rect>
+        <rect x="186" y="216" width="200" height="150" rx="6"></rect>
+        <path d="M186 291 Q211 231 236 291 T286 291 T336 291 T386 291" stroke-width="2" class="stroke-phosphor"></path>
+        <circle cx="430" cy="250" r="16"></circle>
+        <circle cx="482" cy="250" r="11"></circle>
+        <circle cx="430" cy="312" r="11"></circle>
+        <circle cx="482" cy="312" r="16"></circle>
+        <path d="M430 250 V236 M482 312 L492 302"></path>
+        <circle cx="420" cy="372" r="7"></circle>
+        <circle cx="470" cy="372" r="7"></circle>
+      </g>
+
+      <g data-item="dc-supply" class={piece}>
+        <rect x="150" y="470" width="190" height="210" rx="8"></rect>
+        <rect x="166" y="486" width="158" height="50" rx="4"></rect>
+        <text x="245" y="520" text-anchor="middle" stroke="none" font-size="22" class="fill-ch3-soft tabular-nums">00.0 V</text>
+        <circle cx="205" cy="582" r="17"></circle>
+        <circle cx="285" cy="582" r="17"></circle>
+        <path d="M205 582 V567 M285 582 L296 572"></path>
+        <circle cx="195" cy="644" r="8"></circle>
+        <circle cx="245" cy="644" r="8"></circle>
+        <circle cx="295" cy="644" r="8"></circle>
+      </g>
+
+      <g data-item="signal-generator" class={piece}>
+        <rect x="360" y="470" width="190" height="210" rx="8"></rect>
+        <rect x="376" y="486" width="158" height="50" rx="4"></rect>
+        <path d="M390 511 Q402 491 414 511 T438 511 M452 521 V501 H466 V521 H480 V501 M494 521 L506 501 L518 521"></path>
+        <circle cx="440" cy="598" r="28"></circle>
+        <path d="M440 598 L458 580"></path>
+        <rect x="490" y="570" width="40" height="14" rx="3"></rect>
+        <rect x="490" y="594" width="40" height="14" rx="3"></rect>
+        <circle cx="520" cy="650" r="8"></circle>
+      </g>
+
+      <g data-item="power-cables" class={piece}>
+        <circle cx="200" cy="820" r="44"></circle>
+        <circle cx="200" cy="820" r="30"></circle>
+        <circle cx="300" cy="820" r="44"></circle>
+        <circle cx="300" cy="820" r="30"></circle>
+        <circle cx="250" cy="930" r="44"></circle>
+        <circle cx="250" cy="930" r="30"></circle>
+        <path d="M156 820 h-14 v18 M344 820 h14 v18 M294 930 h14 v18"></path>
+      </g>
+
+      <g data-item="bnc-clip-cable" class={piece}>
+        <circle cx="460" cy="880" r="54"></circle>
+        <circle cx="460" cy="880" r="38"></circle>
+        <path d="M514 880 C540 880 540 950 520 968"></path>
+        <path d="M520 968 l-14 18 M520 968 l4 22"></path>
+        <rect x="398" y="812" width="16" height="26" rx="3"></rect>
+      </g>
+    </svg>
+
+    {
+      badges.map((badge) => (
+        <button
+          type="button"
+          data-item={badge.id}
+          data-item-trigger={badge.id}
+          aria-label={`${badge.number} · ${badge.name}`}
+          style={`left: ${badge.left}; top: ${badge.top}`}
+          class="group/badge absolute flex size-11 -translate-1/2 cursor-pointer items-center justify-center rounded-full transition-opacity duration-200 data-[state=dim]:opacity-50"
+        >
+          <span
+            aria-hidden="true"
+            class="flex size-7 items-center justify-center rounded-full border border-ch3-strong bg-void type-data text-ch3-soft transition-colors duration-200 group-hover/badge:bg-ch3-deep group-data-[state=on]/badge:bg-ch3-strong group-data-[state=on]/badge:text-void"
+          >
+            {badge.number}
+          </span>
+        </button>
+      ))
+    }
+  </div>
+  <figcaption class="type-small text-muted">Pasa el cursor o toca un número para ubicar cada equipo.</figcaption>
+</figure>

@@ -10,6 +10,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
+    "test": "vitest run",
     "generate-types": "wrangler types"
   },
   "dependencies": {
@@ -19,6 +20,8 @@
     "tailwindcss": "^4.3.5"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
+    "@types/node": "^26.6.6",
     "vitest": "^5.1.0",
     "wrangler": "^4.162.0"
   },

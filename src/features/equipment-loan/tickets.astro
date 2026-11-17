@@ -1,0 +1,171 @@
+---
+/**
+ * The two loan documents, stacked like papers: the "Comprobante de préstamo" (how to ask,
+ * what the locker brings, what else you can ask for) and the "Paz y salvo" (how to return).
+ * The "Pedir / Devolver" tabs bring one to the front; the other peeks out behind it, inert.
+ * Kit lines on the receipt are linked to the locker drawing (see loan-controller.ts).
+ */
+import type { ExtraItem, KitItem } from './equipment-loan';
+import Ticket from './ticket.astro';
+
+interface Props {
+  /** Locker kit, numbered like the locker badges. */
+  kit: KitItem[];
+  /** Equipment requested on its own. */
+  extras: ExtraItem[];
+}
+
+const { kit, extras } = Astro.props;
+
+const requestSteps = [
+  'Abre el formulario y revisa el contador de casilleros.',
+  'Escribe tu nombre y el espacio de trabajo: Taller 3, 4 o 5, Instrumentación o Proyecto.',
+  'Elige casillero, o «Sin casillero (solo instrumental)».',
+  'Marca el equipo adicional: multímetros, sondas BNC, cables Banana/Caimán y otros.',
+  'Acepta los 3 compromisos.',
+  'Muestra el comprobante que llega al correo y recibe la llave.',
+];
+
+const returnSteps = [
+  'Apaga los equipos.',
+  'Desconecta y enrolla los cables.',
+  'Entrega la llave y el equipo adicional.',
+  'Envía la foto en el momento en que dejas la llave.',
+  'Recibe el Paz y Salvo por correo.',
+];
+
+const tabs = [
+  { id: 'request', label: `Pedir · ${requestSteps.length} pasos` },
+  { id: 'return', label: `Devolver · ${returnSteps.length} pasos` },
+];
+
+/** Two-digit step number. */
+const pad = (n: number) => String(n).padStart(2, '0');
+
+const panel = [
+  'outline-offset-4 [grid-area:1/1] transition-[translate,rotate,filter] duration-300 ease-out',
+  'data-[state=active]:z-10 data-[state=active]:-rotate-1 lg:data-[state=active]:-rotate-[1.5deg]',
+  'data-[state=inactive]:translate-x-6 data-[state=inactive]:translate-y-5 data-[state=inactive]:rotate-1 data-[state=inactive]:brightness-60 sm:data-[state=inactive]:translate-x-10 sm:data-[state=inactive]:rotate-2',
+];
+---
+
+<div data-loan-tabs class="flex flex-col items-center gap-8 lg:items-start">
+  <div role="tablist" aria-label="Proceso" class="flex gap-1 rounded-full border border-graphite bg-carbon p-1">
+    {
+      tabs.map((tab, i) => (
+        <button
+          type="button"
+          role="tab"
+          id={`loan-tab-${tab.id}`}
+          aria-controls={`loan-panel-${tab.id}`}
+          aria-selected={i === 0 ? 'true' : 'false'}
+          tabindex={i === 0 ? 0 : -1}
+          class="h-11 cursor-pointer rounded-full px-4.5 type-small font-medium text-muted transition-colors hover:text-foreground aria-selected:bg-ice/10 aria-selected:text-foreground"
+        >
+          {tab.label}
+        </button>
+      ))
+    }
+  </div>
+
+  <!-- Stack: both papers share one grid cell; the right/bottom padding leaves room for the one behind. -->
+  <div class="grid w-full max-w-[29rem] pr-8 pb-5 sm:pr-10">
+    <div
+      role="tabpanel"
+      id="loan-panel-request"
+      aria-labelledby="loan-tab-request"
+      tabindex="0"
+      data-state="active"
+      class:list={panel}
+    >
+      <Ticket tone="parchment" title="Comprobante de préstamo" subtitle="Laboratorio de Física · Piso 4">
+        <hr class="border-dashed border-void/40" />
+        <section aria-labelledby="receipt-steps" class="flex flex-col gap-3">
+          <h3 id="receipt-steps" class="type-eyebrow text-void/70">Cómo pedir · {requestSteps.length} pasos</h3>
+          <ol class="flex flex-col gap-2 type-small">
+            {
+              requestSteps.map((step, i) => (
+                <li class="flex gap-3">
+                  <span class="tabular-nums text-void/70">{pad(i + 1)}</span>
+                  <span>{step}</span>
+                </li>
+              ))
+            }
+          </ol>
+        </section>
+
+        <hr class="border-dashed border-void/40" />
+        <section aria-labelledby="receipt-kit" class="flex flex-col gap-2">
+          <h3 id="receipt-kit" class="type-eyebrow text-void/70">Cada casillero trae</h3>
+          <ul class="flex flex-col type-small">
+            {
+              kit.map((item) => (
+                <li
+                  data-item={item.id}
+                  data-item-trigger={item.id}
+                  class="group/line -mx-2 flex min-h-9 cursor-default items-center gap-3 rounded-full px-2 transition-[background-color,opacity] duration-200 data-[state=dim]:opacity-45 data-[state=on]:bg-void/10"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="flex size-5 shrink-0 items-center justify-center rounded-full border border-void/60 text-[11px] leading-none tabular-nums transition-colors group-data-[state=on]/line:bg-void group-data-[state=on]/line:text-parchment"
+                  >
+                    {item.number}
+                  </span>
+                  <span class="flex-1">{item.name}</span>
+                  <span class="tabular-nums">× {item.qty}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </section>
+
+        <hr class="border-dashed border-void/40" />
+        <section aria-labelledby="receipt-extras" class="flex flex-col gap-2">
+          <h3 id="receipt-extras" class="type-eyebrow text-void/70">También puedes pedir</h3>
+          <p class="type-small">
+            {extras.map((extra) => extra.name).join(' · ')} · y otros equipos, marcándolos en el formulario.
+          </p>
+        </section>
+
+        <hr class="border-dashed border-void/40" />
+        <p class="text-center type-eyebrow">Personal e intransferible</p>
+        <div
+          aria-hidden="true"
+          class="h-10 bg-[repeating-linear-gradient(90deg,var(--color-void)_0_2px,transparent_2px_5px,var(--color-void)_5px_6px,transparent_6px_10px,var(--color-void)_10px_13px,transparent_13px_16px)]"
+        >
+        </div>
+      </Ticket>
+    </div>
+
+    <div
+      role="tabpanel"
+      id="loan-panel-return"
+      aria-labelledby="loan-tab-return"
+      tabindex="0"
+      data-state="inactive"
+      inert
+      class:list={panel}
+    >
+      <Ticket tone="ice" title="Paz y salvo" subtitle={`Cómo devolver · ${returnSteps.length} pasos`}>
+        <hr class="border-dashed border-void/40" />
+        <ol class="flex flex-col gap-2 type-small">
+          {
+            returnSteps.map((step, i) => (
+              <li class="flex gap-3">
+                <span class="tabular-nums text-void/70">{pad(i + 1)}</span>
+                <span>{step}</span>
+              </li>
+            ))
+          }
+        </ol>
+        <hr class="border-dashed border-void/40" />
+        <p class="flex items-center justify-center gap-2 type-eyebrow">
+          <svg aria-hidden="true" viewBox="0 0 20 20" class="size-4.5 stroke-void" fill="none" stroke-width="2">
+            <path d="M4 10l4 4 8-9"></path>
+          </svg>
+          Devolución completa
+        </p>
+      </Ticket>
+    </div>
+  </div>
+</div>

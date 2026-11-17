@@ -3,6 +3,7 @@ import { getViteConfig } from "astro/config";
 
 export default getViteConfig({
   test: {
-    // Vitest configuration options
+    // Unit tests live next to the code; tests/ holds the Playwright specs.
+    include: ["src/**/*.test.ts"],
   },
 });

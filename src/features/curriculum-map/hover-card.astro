@@ -1,0 +1,42 @@
+---
+/**
+ * Hover window of the curriculum map (md and up). One floating panel lives in the map
+ * viewport; each card's content is pre-rendered in a <template> and hover-card.ts copies
+ * the hovered or focused card's template in and places the panel beside it.
+ * Placed outside the panned stage so it is never clipped or moved by the camera.
+ */
+import CourseDetail from './course-detail.astro';
+import type { Semester } from './curriculum';
+
+interface Props {
+  /** Semesters whose cards get a window. */
+  semesters: Semester[];
+  /** Free-choice credits in the whole plan. */
+  freeCredits: number;
+  /** Credits of the whole plan. */
+  totalCredits: number;
+}
+
+const { semesters, freeCredits, totalCredits } = Astro.props;
+const cards = semesters.flatMap((semester) => semester.cards);
+---
+
+<div
+  data-hover-card
+  id="course-hover-card"
+  role="tooltip"
+  class="pointer-events-none invisible absolute top-0 left-0 z-30 hidden w-75 translate-y-1 flex-col gap-2.5 overflow-hidden rounded-[10px] border border-graphite bg-carbon p-4 opacity-0 shadow-[0_16px_40px_rgb(0_0_0/0.55)] transition-[opacity,translate,visibility] duration-150 ease-out motion-reduce:transition-none data-open:visible data-open:translate-y-0 data-open:opacity-100 md:flex"
+>
+</div>
+
+{
+  cards.map((card) => (
+    <template data-card-detail={card.key}>
+      <CourseDetail card={card} freeCredits={freeCredits} totalCredits={totalCredits} />
+    </template>
+  ))
+}
+
+<script>
+  import './hover-card';
+</script>

@@ -1,0 +1,33 @@
+---
+/**
+ * A printed paper ticket ("P3 · El comprobante"): light paper, dark ink, a centered
+ * serif title and a torn zigzag bottom edge. The body goes in the default slot.
+ */
+interface Props {
+  /** Paper color: parchment for the request receipt, ice for the return slip. */
+  tone: 'parchment' | 'ice';
+  /** Serif title at the top. */
+  title: string;
+  /** Eyebrow under the title. */
+  subtitle: string;
+}
+
+const { tone, title, subtitle } = Astro.props;
+const paper = tone === 'parchment' ? 'var(--color-parchment)' : 'var(--color-ice)';
+---
+
+<article style={`--paper: ${paper}`} class="text-void drop-shadow-[0_24px_40px_rgb(0_0_0/0.6)]">
+  <div class="flex flex-col gap-4 bg-(--paper) px-5 pt-7 pb-5 sm:px-7">
+    <header class="flex flex-col items-center gap-1 text-center">
+      <h2 class="type-title">{title}</h2>
+      <p class="type-eyebrow text-void/70">{subtitle}</p>
+    </header>
+    <slot />
+  </div>
+  <!-- Torn edge: a row of downward teeth in the paper color. -->
+  <div
+    aria-hidden="true"
+    class="h-3 bg-[linear-gradient(135deg,var(--paper)_50%,transparent_50%),linear-gradient(225deg,var(--paper)_50%,transparent_50%)] bg-size-[12px_12px]"
+  >
+  </div>
+</article>

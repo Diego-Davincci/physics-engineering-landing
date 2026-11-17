@@ -139,7 +139,7 @@ instrumentación." (`type-lead`).
 
 **Navbar ("Isla flotante con traza"):** fixed, floating 12–20px from the top.
 IF monogram + "Ing. Física · UNAL" (left) · island with the section links (center) ·
-"Pedir casillero" primary button (right). The island is `carbon` at 72% with a `graphite`
+"Pedir equipos" primary button (right; opens the request form in a new tab). The island is `carbon` at 72% with a `graphite`
 border, soft shadow and blur. Hover/focus on a link: its channel-colored dot lights up and a
 small wave runs under it.
 
@@ -149,6 +149,14 @@ Below `lg`, the links move to a menu:
   arrives in turn, lighting its dot and sweeping its trace once.
 - A dim backdrop covers the page. Closes with Esc (focus returns to the button), the backdrop,
   a link, or resizing to `lg`. The page doesn't scroll behind it.
+
+**Préstamo de equipos (P2 "El casillero abierto" + P3 "El comprobante"):** never "Préstamos"
+alone (reads like money). An open locker drawn in CH3 lines, with a numbered badge on each piece
+of the kit, next to a stack of two paper tickets: the parchment "Comprobante de préstamo" (how to
+ask, what each locker brings, extras) and the ice "Paz y salvo" (how to return). "Pedir / Devolver"
+tabs bring one paper to the front; the other peeks out behind it. Locker badges and receipt lines
+are linked: hover, focus or tap one and that piece glows while the rest dim. Rules below, behind
+a parchment "Regla de oro". Below `lg` it stacks: intro → locker → tickets → rules.
 
 **Footer ("logo + créditos"):** a quiet strip with a `graphite` top border. UNAL shield +
 "Universidad Nacional de Colombia · Sede Medellín" (`type-eyebrow`, `subtle`) on the left;

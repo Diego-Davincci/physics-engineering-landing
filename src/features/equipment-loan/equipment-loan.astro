@@ -1,0 +1,52 @@
+---
+/**
+ * Equipment loan page section ("Préstamo de equipos") — P2 "El casillero abierto" merged
+ * with P3 "El comprobante": the open locker on one side, the stacked request receipt and
+ * return slip on the other, linked item by item; the rules below.
+ * Below lg everything stacks: intro → locker → tickets → rules.
+ */
+import { getCollection } from 'astro:content';
+import { EQUIPMENT_FORM_URL } from '../../shared/lib/links';
+import { splitEquipment } from './equipment-loan';
+import Locker from './locker.astro';
+import Rules from './rules.astro';
+import Tickets from './tickets.astro';
+
+const { kit, extras } = splitEquipment(await getCollection('equipment'));
+---
+
+<section data-loan aria-labelledby="loan-title" class="pt-28 pb-16 md:pt-36 md:pb-24">
+  <div class="mx-auto flex max-w-page flex-col gap-14 px-4 md:px-10">
+    <div class="flex flex-col gap-4">
+      <p class="type-eyebrow text-ch3-soft">Laboratorio de Física · Piso 4</p>
+      <h1 id="loan-title" class="type-display">Tu casillero, abierto</h1>
+      <p class="max-w-2xl type-lead text-muted">
+        Con la llave de un casillero recibes el equipo básico para tus prácticas. Esto es lo que trae, cómo pedirlo y cómo
+        devolverlo.
+      </p>
+      <a
+        href={EQUIPMENT_FORM_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="mt-2 inline-flex h-13 items-center gap-2.5 self-start rounded-full bg-electric px-5.5 font-medium text-on-electric transition-colors hover:bg-electric-hover"
+      >
+        Solicitar casillero o equipos
+        <span class="sr-only">(se abre en una pestaña nueva)</span>
+        <svg aria-hidden="true" viewBox="0 0 20 20" class="size-4.5 stroke-on-electric" fill="none" stroke-width="1.6">
+          <path d="M4 10h12M11 5l5 5-5 5"></path>
+        </svg>
+      </a>
+    </div>
+
+    <div class="grid items-start gap-14 lg:grid-cols-2 lg:gap-16">
+      <Locker kit={kit} />
+      <Tickets kit={kit} extras={extras} />
+    </div>
+
+    <Rules />
+  </div>
+</section>
+
+<script>
+  import './loan-controller';
+</script>

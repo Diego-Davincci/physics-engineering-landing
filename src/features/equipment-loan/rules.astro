@@ -1,0 +1,34 @@
+---
+/**
+ * Loan conditions under the locker and the tickets: the parchment "golden rule",
+ * the rules, who to contact, and the source document.
+ */
+---
+
+<div class="flex flex-col gap-10 border-t border-graphite pt-10">
+  <p class="flex flex-col gap-2 rounded-control border border-parchment bg-parchment/8 px-5 py-4 sm:flex-row sm:items-center sm:gap-5">
+    <span class="type-eyebrow whitespace-nowrap text-parchment">Regla de oro</span>
+    <span>Sin el comprobante en pantalla no te entregan llave ni equipos. El préstamo es personal e intransferible.</span>
+  </p>
+
+  <div class="grid gap-10 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+    <section aria-labelledby="loan-rules" class="flex flex-col gap-3">
+      <h2 id="loan-rules" class="type-eyebrow text-muted">Reglas</h2>
+      <ul class="flex flex-col gap-2.5">
+        <li>Máximo 1 casillero activo por estudiante. Puedes pedir equipo sin casillero.</li>
+        <li>Si tienes novedades pendientes, quedas en la lista de restricción.</li>
+        <li>
+          <span class="text-danger">Día 3:</span> recordatorio. <span class="text-danger">Desde el día 4:</span> reporte a la
+          Dirección de Departamento.
+        </li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="loan-contact" class="flex flex-col gap-3">
+      <h2 id="loan-contact" class="type-eyebrow text-muted">Contacto</h2>
+      <p>Diego Alejandro Londoño Jiménez, responsable del laboratorio.</p>
+    </section>
+  </div>
+
+  <p class="type-small text-subtle">Fuente: Manual del Estudiante: Casilleros e Instrumentación, Piso 4 (vigencia 2026).</p>
+</div>

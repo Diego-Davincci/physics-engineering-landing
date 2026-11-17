@@ -14,11 +14,12 @@
  * Once the page scrolls, a soft void gradient fades in behind the whole header so content
  * passing underneath never clashes with the monogram or the call to action.
  */
+import { EQUIPMENT_FORM_URL } from '../lib/links';
 
 /** Main navigation. `trace` is the token color of each link's trace; `#` hrefs are placeholders. */
 const links = [
   { label: 'Malla curricular', href: '/malla-curricular', trace: 'var(--color-phosphor)' },
-  { label: 'Préstamos', href: '#', trace: 'var(--color-ch3-strong)' },
+  { label: 'Préstamo de equipos', href: '/prestamo-de-equipos', trace: 'var(--color-ch3-strong)' },
   { label: '¿A quién acudo?', href: '#', trace: 'var(--color-parchment)' },
 ];
 
@@ -96,10 +97,13 @@ const island =
 
     <div class="flex items-center gap-2">
       <a
-        href="#"
+        href={EQUIPMENT_FORM_URL}
+        target="_blank"
+        rel="noopener noreferrer"
         class="inline-flex h-11 shrink-0 items-center rounded-full bg-electric px-4.5 type-small font-semibold whitespace-nowrap text-on-electric transition-colors hover:bg-electric-hover"
       >
-        Pedir casillero
+        Pedir equipos
+        <span class="sr-only">(se abre en una pestaña nueva)</span>
       </a>
 
       <button

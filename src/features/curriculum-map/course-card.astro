@@ -21,27 +21,27 @@ const code = card.kind === 'course' ? card.code : card.kind === 'elective' ? 'Op
 const tag = card.kind === 'free' ? 'Cualquier asignatura' : card.group.label;
 /** Elective seats read "Optativa I · Instrumentación" to screen readers, since the group is only a tag visually. */
 const spokenName = card.kind === 'elective' ? `${card.name} · ${card.group.label}` : card.name;
-
-/** Zoomed far out on the map the text is unreadable, so it fades and only the colors remain. */
-const fade = 'transition-opacity duration-200 md:group-data-[detail=low]/map:opacity-0';
 ---
 
+<!-- data-card links the card to its hover window (hover-card.astro), which also makes it tabbable from md up. -->
 <article
+  data-card={card.key}
   aria-label={`${spokenName}, ${card.credits} créditos`}
   class:list={[
-    'flex min-h-24 flex-col justify-between gap-1.5 rounded-lg border px-3 py-2.5 md:h-28 md:w-48',
+    'flex min-h-24 flex-col justify-between gap-1.5 rounded-lg border px-3 py-2.5 transition-shadow md:h-28 md:w-48',
+    'hover:shadow-[0_8px_24px_rgb(0_0_0/0.45)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-phosphor',
     style.border,
     card.kind === 'course' ? style.bg : 'border-dashed bg-transparent',
   ]}
 >
-  <p aria-hidden="true" class:list={['flex justify-between gap-2 type-data text-muted', fade]}>
+  <p aria-hidden="true" class="flex justify-between gap-2 type-data text-muted">
     <span class="truncate">{code}</span>
     <span class="shrink-0 text-foreground">{card.credits} cr</span>
   </p>
-  <p aria-hidden="true" class:list={['line-clamp-2 type-small font-medium', card.kind === 'free' ? 'text-muted' : 'text-foreground', fade]}>
+  <p aria-hidden="true" class:list={['line-clamp-2 type-small font-medium', card.kind === 'free' ? 'text-muted' : 'text-foreground']}>
     {card.name}
   </p>
-  <p aria-hidden="true" class:list={['truncate text-[11px] leading-4 font-semibold tracking-[0.08em] uppercase', style.text, fade]}>
+  <p aria-hidden="true" class:list={['truncate text-[11px] leading-4 font-semibold tracking-[0.08em] uppercase', style.text]}>
     {tag}
   </p>
 </article>

@@ -1,0 +1,98 @@
+---
+/**
+ * What the hover window says about one card (Malla v0.3 tooltip): code, credits, name,
+ * group and, for courses, what they need, are taken with and unlock.
+ * Rendered inside hover-card.astro's per-card <template>.
+ */
+import type { Card, CourseRef } from './curriculum';
+import { freeStyle, groupStyle } from './group-styles';
+
+interface Props {
+  /** Card the window describes. */
+  card: Card;
+  /** Free-choice credits in the whole plan. */
+  freeCredits: number;
+  /** Credits of the whole plan. */
+  totalCredits: number;
+}
+
+const { card, freeCredits, totalCredits } = Astro.props;
+
+const style = card.kind === 'free' ? freeStyle : groupStyle(card.group.id);
+
+/**
+ * Up to three course names, then "+N".
+ * @param refs - related courses
+ */
+function preview(refs: CourseRef[]): string {
+  if (refs.length === 0) return 'Ninguno';
+  const shown = refs.slice(0, 3).map((ref) => ref.name).join(' · ');
+  return refs.length > 3 ? `${shown} · +${refs.length - 3}` : shown;
+}
+
+const component = { foundation: 'Fundamentación', professional: 'Disciplinar' };
+
+const head =
+  card.kind === 'course'
+    ? {
+        code: card.code,
+        name: card.name,
+        group: card.group.name,
+        meta: `${card.group.elective ? 'Optativa' : 'Obligatoria'} · ${component[card.group.component]} · Semestre ${card.semester}`,
+      }
+    : card.kind === 'elective'
+      ? {
+          code: 'Optativa',
+          name: `${card.name} · ${card.group.label}`,
+          group: card.group.name,
+          meta: `En esta casilla va una materia de esta agrupación. En total eliges ${card.groupCredits} créditos de ella.`,
+        }
+      : {
+          code: 'Libre elección',
+          name: card.name,
+          group: 'Cualquier asignatura de la universidad',
+          meta: `El plan exige ${freeCredits} créditos de libre elección, el ${Math.round((freeCredits / totalCredits) * 100)} % del total.`,
+        };
+
+const relations =
+  card.kind === 'course'
+    ? [
+        {
+          label: '← Necesitas',
+          color: 'text-phosphor',
+          // A non-course requirement (e.g. Trabajo de Grado's credits) replaces "Ninguno" or follows the courses.
+          text:
+            [card.relations.prerequisites.length > 0 && preview(card.relations.prerequisites), card.requirement]
+              .filter(Boolean)
+              .join(' · ') || 'Ninguno',
+          show: true,
+        },
+        { label: '↔ Correquisito', color: 'text-parchment', text: preview(card.relations.corequisites), show: card.relations.corequisites.length > 0 },
+        { label: 'Te abre →', color: 'text-ice', text: preview(card.relations.unlocks), show: true },
+      ].filter((relation) => relation.show)
+    : [];
+---
+
+<span aria-hidden="true" class:list={['absolute inset-x-0 top-0 border-t-2', style.border]}></span>
+<p class="flex justify-between gap-3 type-data">
+  <span class:list={['uppercase', style.text]}>{head.code}</span>
+  <span class="shrink-0 text-foreground">{card.credits} créditos</span>
+</p>
+<p class="type-body font-semibold text-foreground">{head.name}</p>
+<p class:list={['flex items-center gap-2 type-small', style.text]}>
+  <span aria-hidden="true" class:list={['size-2 shrink-0 rounded-xs border', style.border, style.bg, card.kind !== 'course' && 'border-dashed']}></span>
+  {head.group}
+</p>
+<p class="type-small text-muted">{head.meta}</p>
+{
+  relations.length > 0 && (
+    <dl class="flex flex-col gap-2 border-t border-graphite pt-2.5">
+      {relations.map((relation) => (
+        <div class="flex flex-col gap-0.5">
+          <dt class:list={['text-[10px] leading-4 font-semibold tracking-widest uppercase', relation.color]}>{relation.label}</dt>
+          <dd class="type-small text-foreground">{relation.text}</dd>
+        </div>
+      ))}
+    </dl>
+  )
+}

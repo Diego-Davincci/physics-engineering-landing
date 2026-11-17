@@ -37,7 +37,7 @@
   { "id": "3006875", "name": "Taller IV (Electrónica Análoga)", "credits": 5, "group": "electronics", "prerequisites": ["3006874"], "corequisites": [] },
   { "id": "3006876", "name": "Taller V (Electrónica Digital y Microcontroladores)", "credits": 5, "group": "electronics", "prerequisites": ["3006875", "3010435"], "corequisites": [] },
 
-  { "id": "3006944", "name": "Trabajo de Grado", "credits": 6, "group": "thesis", "prerequisites": [], "corequisites": [] },
+  { "id": "3006944", "name": "Trabajo de Grado", "credits": 6, "group": "thesis", "prerequisites": [], "corequisites": [], "requirement": "Haber aprobado 51 créditos (75 %) del componente disciplinar o profesional" },
 
   { "id": "3006802", "name": "Biología Celular", "credits": 4, "group": "basic-science", "prerequisites": [], "corequisites": [] },
   { "id": "3006817", "name": "Biología Molecular", "credits": 4, "group": "basic-science", "prerequisites": ["3006802"], "corequisites": [] },

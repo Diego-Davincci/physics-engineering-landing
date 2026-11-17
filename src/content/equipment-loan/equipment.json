@@ -1,0 +1,10 @@
+[
+  { "id": "oscilloscope", "order": 1, "name": "Osciloscopio digital", "kit": true, "qty": 1 },
+  { "id": "dc-supply", "order": 2, "name": "Fuente DC", "kit": true, "qty": 1 },
+  { "id": "signal-generator", "order": 3, "name": "Generador de señales", "kit": true, "qty": 1 },
+  { "id": "power-cables", "order": 4, "name": "Cables de poder", "kit": true, "qty": 3 },
+  { "id": "bnc-clip-cable", "order": 5, "name": "Cable BNC-Caimán", "kit": true, "qty": 1 },
+  { "id": "multimeters", "order": 6, "name": "Multímetros", "kit": false },
+  { "id": "bnc-probes", "order": 7, "name": "Sondas BNC", "kit": false },
+  { "id": "banana-clip-cables", "order": 8, "name": "Cables Banana/Caimán", "kit": false }
+]

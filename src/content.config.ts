@@ -32,6 +32,8 @@ const courses = defineCollection({
     prerequisites: z.array(reference('courses')),
     /** Courses taken in the same semester as this one. */
     corequisites: z.array(reference('courses')),
+    /** A condition that is not a course (e.g. Trabajo de Grado's minimum credits), as written in the Acuerdo. */
+    requirement: z.string().optional(),
   }),
 });
 
@@ -53,4 +55,17 @@ const studyPlan = defineCollection({
   schema: z.object({ slots: z.array(slot) }),
 });
 
-export const collections = { groups, courses, studyPlan };
+/**
+ * Lab equipment students can borrow (Laboratorio de Física, piso 4).
+ * `kit` items come in every locker, `qty` of each; the rest are requested one by one in the form.
+ * `order` sets the display order (getCollection doesn't keep file order); the kit is numbered by it.
+ */
+const equipment = defineCollection({
+  loader: file('src/content/equipment-loan/equipment.json'),
+  schema: z.discriminatedUnion('kit', [
+    z.object({ kit: z.literal(true), order: z.number().int(), name: z.string(), qty: z.number().int().positive() }),
+    z.object({ kit: z.literal(false), order: z.number().int(), name: z.string() }),
+  ]),
+});
+
+export const collections = { groups, courses, studyPlan, equipment };
