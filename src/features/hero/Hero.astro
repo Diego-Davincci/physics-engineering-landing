@@ -1,13 +1,14 @@
 ---
 /**
  * Home hero — "★ HERO PRINCIPAL · Faraday en pose de fresco".
- * Always exactly one screen tall. The text sits at the top; below it, a "stage"
- * holding Faraday and the oscilloscope scales to fit the remaining height, so the
- * image and the SVG stay aligned and the probe always meets the finger.
- * Below lg the stage keeps a minimum width and centers on the finger–probe gap.
+ * Always exactly one screen tall. Below the text, a "stage" holding Faraday and the
+ * oscilloscope scales to fit the remaining height, so the image and the SVG stay aligned
+ * and the probe always meets the finger. From lg, text + stage are one centered block;
+ * below lg the stage is wider than the screen and framed on the finger–probe contact.
  */
 import { Image } from 'astro:assets';
 import faraday from '../../assets/hero/faraday.png';
+import Bench from './Bench.astro';
 import Oscilloscope from './Oscilloscope.astro';
 
 /**
@@ -17,44 +18,100 @@ import Oscilloscope from './Oscilloscope.astro';
 const VIEW = { x: 0, y: 290, w: 1440, h: 600 };
 
 /** Faraday's box in drawing units: left edge, rendered width and bottom edge. */
-const figure = { x: 40, w: 1000, bottom: 880 };
+const figure = { x: 40, w: 960, bottom: 880 };
 const figureH = (figure.w * faraday.height) / faraday.width;
 const figureTop = figure.bottom - figureH;
 
 /** Fingertip position inside the cutout, as a fraction of its size (measured on the source image). */
-const FINGERTIP = { x: 0.6898, y: 0.3138 };
+const FINGERTIP = { x: 0.7055, y: 0.3246 };
 const tip = { x: figure.x + FINGERTIP.x * figure.w, y: figureTop + FINGERTIP.y * figureH };
 
 /** Percent helpers so the image is placed in the same coordinates as the SVG. */
 const pctX = (v: number) => `${(((v - VIEW.x) / VIEW.w) * 100).toFixed(3)}%`;
 const pctY = (v: number) => `${(((v - VIEW.y) / VIEW.h) * 100).toFixed(3)}%`;
+
+/**
+ * Warm light from the contact ("Fondo 2 · Halo en el contacto"), centered on the
+ * finger–probe gap (the spark is 33 units long). Sizes are diameters in drawing units.
+ */
+const gap = { x: tip.x + 16, y: tip.y };
+const HALO = 1120;
+const CORE = 180;
+const glowStyle = (size: number) =>
+  `left: ${pctX(gap.x)}; top: ${pctY(gap.y)}; width: ${((size / VIEW.w) * 100).toFixed(3)}%;`;
+
+/**
+ * Below lg the stage is wider than the screen and centered on this point instead of its
+ * middle: a little right of the spark, so the hand enters from the left edge and the
+ * oscilloscope from the right — the fresco's famous crop of the two hands.
+ */
+const focus = gap.x + 120;
+const stageShift = `--focus-shift: -${pctX(focus)};`;
 ---
 
-<section aria-labelledby="hero-title" class="relative h-svh min-h-140 overflow-hidden">
-  <div class="absolute inset-x-0 top-30 z-10 flex flex-col items-center px-4 text-center md:top-34">
+<!--
+  lg+: text and stage form one block, centered vertically in the screen (below the navbar),
+  so on tall monitors they stay together instead of drifting to the top and bottom edges.
+-->
+<section
+  aria-labelledby="hero-title"
+  class="relative h-svh min-h-140 overflow-hidden lg:flex lg:flex-col lg:items-center lg:justify-center lg:pt-20 lg:pb-6"
+>
+  <div
+    class="absolute inset-x-0 top-28 z-10 mx-auto flex w-full max-w-page flex-col items-center px-4 text-center md:top-34 lg:relative lg:top-0"
+  >
     <p class="type-eyebrow text-muted">UNAL · Sede Medellín · Facultad de Ciencias</p>
     <h1 id="hero-title" class="mt-4 type-hero">Ingeniería Física</h1>
     <p class="mt-5 type-lead text-muted">Donde la ciencia toca la instrumentación.</p>
   </div>
 
   <!--
-    Stage: fits under the text (≤ 100svh − 300px tall, × 2.4 for the 1440/600 ratio) and is
-    capped at 1152px wide, so Faraday renders at ~800px — close to the cutout's native
-    1312px and sharp on 2× screens. Its top-center is empty, so it may slide behind the tagline.
+    Stage widths (below lg it is also centered vertically in the space under the text,
+    ~300px; its height is width / 2.4, so 75vw on phones and 54.17vw on md):
+    - phones: 180vw, centered on the focus point → hand from the left, scope from the right.
+    - md: 130vw, same focus → most of Faraday and the whole scope.
+    - lg+: in flow right under the text (its empty top-center tucks 16px under the tagline).
+      Fits the height left by navbar + text (≤ 100svh − 320px tall, × 2.4 for the 1440/600
+      ratio), capped at the 1280px page width. Faraday renders ≤ 853px from a 2523px cutout.
   -->
   <div
-    class="absolute bottom-[4svh] left-1/2 aspect-1440/600 w-[max(900px,min(100vw,1152px,calc((100svh-300px)*2.4)))] translate-x-[-57%] lg:bottom-[3svh] lg:-translate-x-1/2"
+    class="absolute bottom-[max(6svh,calc((100svh-300px-75vw)/2))] left-1/2 aspect-1440/600 w-[180vw] shrink-0 translate-x-(--focus-shift) md:bottom-[max(4svh,calc((100svh-320px-54.17vw)/2))] md:w-[130vw] lg:relative lg:bottom-auto lg:left-auto lg:-mt-4 lg:w-[min(100vw,1280px,calc((100svh-320px)*2.4))] lg:translate-x-0"
+    style={stageShift}
   >
+    <!-- Warm halo behind the scene, like an early electric lamp; fades in once on load. -->
+    <div
+      aria-hidden="true"
+      class="absolute aspect-square -translate-1/2 bg-radial from-amber-200/24 via-amber-500/10 via-35% to-transparent to-72% opacity-85 animate-[hero-ignite_1.6s_ease-out_0.2s_both]"
+      style={glowStyle(HALO)}
+    >
+    </div>
+    <Bench viewBox={`${VIEW.x} ${VIEW.y} ${VIEW.w} ${VIEW.h}`} />
     <Image
       src={faraday}
       alt="Michael Faraday reclinado como el Adán de Miguel Ángel, extendiendo el dedo hacia la punta de la sonda de un osciloscopio"
-      widths={[640, 1000, 1312]}
-      sizes="(min-width: 1024px) 800px, 625px"
+      widths={[640, 960, 1280, 1600, 2000, 2400]}
+      sizes="(min-width: 1024px) 853px, (min-width: 768px) 87vw, 120vw"
       loading="eager"
       fetchpriority="high"
       class="absolute h-auto"
       style={`left: ${pctX(figure.x)}; top: ${pctY(figureTop)}; width: ${(figure.w / VIEW.w) * 100}%;`}
     />
+    <!-- Hot core at the gap, screened over the image so it lights the fingertip. -->
+    <div
+      aria-hidden="true"
+      class="absolute aspect-square -translate-1/2 bg-radial from-amber-100/30 via-amber-300/12 via-40% to-transparent to-70% opacity-85 mix-blend-screen animate-[hero-ignite_1.6s_ease-out_0.2s_both]"
+      style={glowStyle(CORE)}
+    >
+    </div>
     <Oscilloscope tip={tip} viewBox={`${VIEW.x} ${VIEW.y} ${VIEW.w} ${VIEW.h}`} />
   </div>
 </section>
+
+<style>
+  /* The light switches on: flares past its resting level, then settles (resting = opacity-85). */
+  @keyframes hero-ignite {
+    0% { opacity: 0; }
+    35% { opacity: 1; }
+    100% { opacity: 0.85; }
+  }
+</style>

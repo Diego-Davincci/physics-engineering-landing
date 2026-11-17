@@ -1,13 +1,18 @@
 ---
 /**
  * Site header — "★ NAVBAR ELEGIDO · A · Isla flotante con traza".
- * Floats over the page: monogram (left), a blurred pill of links (center) and the
- * primary call to action (right). Hovering or focusing a link lights its dot and
- * draws a moving trace under it — CSS only, no JS. Below `lg` the links move into
- * a <details> menu.
+ * Floats over the page inside the 1280px page column: monogram (left), a blurred pill of
+ * links (center) and the primary call to action (right). Hovering or focusing a link lights
+ * its dot and draws a moving trace under it.
+ *
+ * Below `lg` the links move into a menu:
+ * - A classic hamburger whose bars morph into an ✕ while the menu is open.
+ * - The panel opens like the oscilloscope powering on: a bright line that unfolds, then the
+ *   links arrive one by one, each lighting its dot and sweeping its trace once.
+ * - Closes with Esc, the backdrop, a link, or growing to lg. The page doesn't scroll behind it.
  */
 
-/** Main navigation. `trace` is the token color of each link's hover trace; `href` is a placeholder. */
+/** Main navigation. `trace` is the token color of each link's trace; `href` is a placeholder. */
 const links = [
   { label: 'Malla curricular', href: '#', trace: 'var(--color-phosphor)' },
   { label: 'Préstamos', href: '#', trace: 'var(--color-ch3-strong)' },
@@ -21,97 +26,235 @@ const island =
   'rounded-full border border-graphite bg-carbon/72 shadow-[0_10px_30px_rgb(0_0_0/0.45),inset_0_1px_0_rgb(214_236_255/0.06)] backdrop-blur-[14px]';
 ---
 
-<header class="fixed inset-x-0 top-3 z-50 flex h-16 items-center justify-between gap-4 px-4 md:top-5 md:px-10">
-  <a href="/" aria-label="Inicio · Ingeniería Física" class="flex items-center gap-3 text-foreground">
-    <span
-      aria-hidden="true"
-      class="flex size-9 items-center justify-center rounded-control border border-electric bg-void/60 font-serif text-[22px] italic"
-    >
-      IF
-    </span>
-    <span aria-hidden="true" class="hidden type-eyebrow text-muted sm:block">Ing. Física · UNAL</span>
-  </a>
+<header data-menu="closed" class="group/header fixed inset-x-0 top-3 z-50 md:top-5">
+  <!-- Backdrop behind the open mobile menu; tapping it closes the menu. -->
+  <div
+    data-menu-backdrop
+    aria-hidden="true"
+    class="invisible fixed inset-0 bg-void/60 opacity-0 backdrop-blur-[2px] transition-[opacity,visibility] duration-200 group-data-[menu=open]/header:visible group-data-[menu=open]/header:opacity-100 lg:hidden"
+  >
+  </div>
 
-  <nav aria-label="Principal" class="hidden lg:block">
-    <ul class:list={['flex h-14 items-center gap-1 px-2', island]}>
-      {
-        links.map((link) => (
-          <li>
-            <a
-              href={link.href}
-              style={`--trace: ${link.trace}`}
-              class="group relative flex h-11 items-center gap-2 rounded-full px-4.5 type-nav text-muted transition-colors duration-250 hover:bg-ice/6 hover:text-foreground focus-visible:bg-ice/6 focus-visible:text-foreground"
-            >
-              <span
-                aria-hidden="true"
-                class="size-1.5 rounded-full bg-muted/30 transition-[background-color,box-shadow] duration-250 group-hover:bg-(--trace) group-hover:shadow-[0_0_8px_var(--trace)] group-focus-visible:bg-(--trace) group-focus-visible:shadow-[0_0_8px_var(--trace)]"
-              />
-              {link.label}
-              <svg
-                aria-hidden="true"
-                viewBox="0 0 120 10"
-                preserveAspectRatio="none"
-                class="pointer-events-none absolute inset-x-0 -bottom-0.5 h-2.5 w-full opacity-0 transition-opacity duration-250 group-hover:opacity-100 group-focus-visible:opacity-100"
-              >
-                <path
-                  d={wave}
-                  fill="none"
-                  stroke-width="1.6"
-                  class="animate-[nav-trace_1.2s_linear_infinite] stroke-(--trace) drop-shadow-[0_0_3px_var(--trace)]"
-                />
-              </svg>
-            </a>
-          </li>
-        ))
-      }
-    </ul>
-  </nav>
-
-  <div class="flex items-center gap-2">
-    <a
-      href="#"
-      class="inline-flex h-11 shrink-0 items-center rounded-full bg-electric px-4.5 type-small font-semibold whitespace-nowrap text-on-electric transition-colors hover:bg-electric-hover"
-    >
-      Pedir casillero
+  <div class="relative mx-auto flex h-16 max-w-page items-center justify-between gap-4 px-4 md:px-10">
+    <a href="/" aria-label="Inicio · Ingeniería Física" class="flex items-center gap-3 text-foreground">
+      <span
+        aria-hidden="true"
+        class="flex size-9 items-center justify-center rounded-control border border-electric bg-void/60 font-serif text-[22px] italic"
+      >
+        IF
+      </span>
+      <span aria-hidden="true" class="hidden type-eyebrow text-muted sm:block">Ing. Física · UNAL</span>
     </a>
 
-    <details class="group/menu relative lg:hidden">
-      <summary
-        aria-label="Menú"
-        class:list={[
-          'flex size-11 cursor-pointer list-none items-center justify-center text-foreground [&::-webkit-details-marker]:hidden',
-          island,
-        ]}
-      >
-        <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" class="size-5">
-          <path d="M4 6H16M4 10H16M4 14H16" class="group-open/menu:hidden"></path>
-          <path d="M5 5L15 15M15 5L5 15" class="hidden group-open/menu:block"></path>
-        </svg>
-      </summary>
-      <ul class="absolute top-full right-0 mt-2 flex w-60 flex-col gap-1 rounded-3xl border border-graphite bg-carbon/90 p-2 shadow-[0_10px_30px_rgb(0_0_0/0.45)] backdrop-blur-[14px]">
+    <nav aria-label="Principal" class="hidden lg:block">
+      <ul class:list={['flex h-14 items-center gap-1 px-2', island]}>
         {
           links.map((link) => (
             <li>
               <a
                 href={link.href}
                 style={`--trace: ${link.trace}`}
-                class="flex h-11 items-center gap-2.5 rounded-full px-4 type-nav text-muted transition-colors hover:bg-ice/6 hover:text-foreground"
+                class="group relative flex h-11 items-center gap-2 rounded-full px-4.5 type-nav text-muted transition-colors duration-250 hover:bg-ice/6 hover:text-foreground focus-visible:bg-ice/6 focus-visible:text-foreground"
               >
-                <span aria-hidden="true" class="size-1.5 rounded-full bg-(--trace)" />
+                <span
+                  aria-hidden="true"
+                  class="size-1.5 rounded-full bg-muted/30 transition-[background-color,box-shadow] duration-250 group-hover:bg-(--trace) group-hover:shadow-[0_0_8px_var(--trace)] group-focus-visible:bg-(--trace) group-focus-visible:shadow-[0_0_8px_var(--trace)]"
+                />
                 {link.label}
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 120 10"
+                  preserveAspectRatio="none"
+                  class="pointer-events-none absolute inset-x-0 -bottom-0.5 h-2.5 w-full opacity-0 transition-opacity duration-250 group-hover:opacity-100 group-focus-visible:opacity-100"
+                >
+                  <path
+                    d={wave}
+                    fill="none"
+                    stroke-width="1.6"
+                    class="animate-[nav-trace_1.2s_linear_infinite] stroke-(--trace) drop-shadow-[0_0_3px_var(--trace)]"
+                  />
+                </svg>
               </a>
             </li>
           ))
         }
       </ul>
-    </details>
+    </nav>
+
+    <div class="flex items-center gap-2">
+      <a
+        href="#"
+        class="inline-flex h-11 shrink-0 items-center rounded-full bg-electric px-4.5 type-small font-semibold whitespace-nowrap text-on-electric transition-colors hover:bg-electric-hover"
+      >
+        Pedir casillero
+      </a>
+
+      <button
+        type="button"
+        data-menu-toggle
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        aria-label="Menú"
+        class:list={['group/toggle flex size-11 cursor-pointer items-center justify-center text-foreground lg:hidden', island]}
+      >
+        <!-- Hamburger → ✕: the outer bars meet in the middle and rotate; the middle bar shrinks away. 1 unit = 1px. -->
+        <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke-width="1.6" stroke-linecap="round" class="size-5 stroke-foreground">
+          <path
+            d="M4 6H16"
+            class="origin-center transition-[translate,rotate] duration-250 ease-out transform-fill group-aria-expanded/toggle:translate-y-1 group-aria-expanded/toggle:rotate-45"
+          ></path>
+          <path
+            d="M4 10H16"
+            class="origin-center transition-[scale,opacity] duration-200 transform-fill group-aria-expanded/toggle:scale-x-0 group-aria-expanded/toggle:opacity-0"
+          ></path>
+          <path
+            d="M4 14H16"
+            class="origin-center transition-[translate,rotate] duration-250 ease-out transform-fill group-aria-expanded/toggle:-translate-y-1 group-aria-expanded/toggle:-rotate-45"
+          ></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Mobile menu panel -->
+    <nav
+      id="mobile-menu"
+      aria-label="Principal"
+      class="invisible absolute inset-x-4 top-full mt-2 opacity-0 transition-[opacity,visibility] duration-150 group-data-[menu=open]/header:visible group-data-[menu=open]/header:opacity-100 sm:left-auto sm:w-72 md:right-10 lg:hidden"
+    >
+      <div
+        class="relative origin-top overflow-hidden rounded-3xl border border-graphite bg-carbon/92 p-2 shadow-[0_10px_30px_rgb(0_0_0/0.45)] backdrop-blur-[14px] group-data-[menu=open]/header:animate-[menu-power_420ms_cubic-bezier(0.2,0.8,0.2,1)_both]"
+      >
+        <!-- Power-on line: flashes across the top while the panel unfolds. -->
+        <div
+          aria-hidden="true"
+          class="absolute inset-x-6 top-0 h-px bg-ice opacity-0 shadow-[0_0_8px_var(--color-phosphor)] group-data-[menu=open]/header:animate-[menu-line_600ms_ease-out_both]"
+        >
+        </div>
+        <ul class="flex flex-col gap-1">
+          {
+            links.map((link, i) => (
+              <li
+                class="group-data-[menu=open]/header:animate-[menu-item_320ms_cubic-bezier(0.2,0.8,0.2,1)_both]"
+                style={`animation-delay: ${180 + i * 70}ms`}
+              >
+                <a
+                  href={link.href}
+                  data-menu-link
+                  style={`--trace: ${link.trace}`}
+                  class="group relative flex h-12 items-center gap-3 rounded-full px-4 type-nav text-muted transition-colors hover:bg-ice/6 hover:text-foreground focus-visible:bg-ice/6 focus-visible:text-foreground"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="size-1.5 rounded-full bg-(--trace) shadow-[0_0_8px_var(--trace)] group-data-[menu=open]/header:animate-[menu-dot_700ms_ease-out_both]"
+                    style={`animation-delay: ${260 + i * 70}ms`}
+                  />
+                  {link.label}
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 120 10"
+                    preserveAspectRatio="none"
+                    class="pointer-events-none absolute inset-x-4 bottom-1 h-2 w-[calc(100%-2rem)] opacity-0 transition-opacity duration-250 group-hover:opacity-100 group-focus-visible:opacity-100 group-data-[menu=open]/header:animate-[menu-sweep_900ms_ease-out_backwards]"
+                    style={`animation-delay: ${260 + i * 70}ms`}
+                  >
+                    <path
+                      d={wave}
+                      fill="none"
+                      stroke-width="1.4"
+                      class="animate-[nav-trace_1.2s_linear_infinite] stroke-(--trace) drop-shadow-[0_0_3px_var(--trace)]"
+                    />
+                  </svg>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </nav>
   </div>
 </header>
+
+<script>
+  const header = document.querySelector<HTMLElement>('header[data-menu]');
+  const toggle = header?.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+
+  if (header && toggle) {
+    const lg = window.matchMedia('(min-width: 64rem)');
+
+    const setOpen = (open: boolean, { returnFocus = false } = {}) => {
+      header.dataset.menu = open ? 'open' : 'closed';
+      toggle.setAttribute('aria-expanded', String(open));
+      document.documentElement.classList.toggle('overflow-hidden', open);
+      if (!open && returnFocus) toggle.focus();
+    };
+
+    toggle.addEventListener('click', () => setOpen(header.dataset.menu !== 'open'));
+    header.querySelector('[data-menu-backdrop]')?.addEventListener('click', () => setOpen(false));
+    header.querySelectorAll('[data-menu-link]').forEach((link) => link.addEventListener('click', () => setOpen(false)));
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && header.dataset.menu === 'open') setOpen(false, { returnFocus: true });
+    });
+    lg.addEventListener('change', (event) => event.matches && setOpen(false));
+  }
+</script>
 
 <style>
   @keyframes nav-trace {
     to {
       transform: translateX(-30px);
+    }
+  }
+
+  /* ── Mobile menu ── */
+  /* Panel: a thin line that unfolds downward, like the scope's power-on. */
+  @keyframes menu-power {
+    0% {
+      transform: scaleY(0.02);
+      opacity: 0.6;
+    }
+    100% {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+  }
+  @keyframes menu-line {
+    0% {
+      opacity: 0;
+    }
+    20%,
+    45% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  @keyframes menu-item {
+    from {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+  }
+  /* Dot: dim → flares with its glow → settles. */
+  @keyframes menu-dot {
+    0% {
+      opacity: 0.2;
+      box-shadow: none;
+    }
+    35% {
+      opacity: 1;
+      box-shadow: 0 0 14px var(--trace);
+    }
+  }
+  /* Trace under the link: shows once while the link arrives, then fades out. */
+  @keyframes menu-sweep {
+    0% {
+      opacity: 0;
+    }
+    30% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
     }
   }
 </style>

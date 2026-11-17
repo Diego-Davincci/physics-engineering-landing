@@ -1,0 +1,34 @@
+---
+/**
+ * Color key of the map: one swatch per course group, plus free-choice seats.
+ * Elective groups get a dashed swatch, like their seats on the map.
+ */
+import type { Group } from './curriculum';
+import { freeStyle, groupStyle } from './group-styles';
+
+interface Props {
+  /** Every course group, in display order. */
+  groups: Group[];
+}
+
+const { groups } = Astro.props;
+
+const items = [
+  ...groups.map((group) => ({ label: group.label, style: groupStyle(group.id), dashed: group.elective })),
+  { label: 'Libre elección', style: freeStyle, dashed: true },
+];
+---
+
+<ul aria-label="Colores por agrupación" class="flex flex-wrap gap-x-5 gap-y-2 type-small text-muted">
+  {
+    items.map((item) => (
+      <li class="flex items-center gap-2">
+        <span
+          aria-hidden="true"
+          class:list={['h-3 w-4.5 rounded-[3px] border', item.style.border, item.style.bg, item.dashed && 'border-dashed']}
+        />
+        {item.label}
+      </li>
+    ))
+  }
+</ul>

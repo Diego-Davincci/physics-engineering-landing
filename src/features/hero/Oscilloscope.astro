@@ -6,8 +6,16 @@
  *
  * The four screen traces are the career channels (SYSTEM-DESIGN.md §2):
  * CH1 sine · CH2 trapezoid · CH3 square · CH4 wave packet.
+ *
+ * Motion (CSS only, keyframes at the bottom):
+ * - Intro, once: the screen powers on — a bright line opens into the full display.
+ * - Loop, every 3.2s: the arc snaps between three shapes → a pulse runs down the cable →
+ *   CH1 lights blink and the screen flashes → the beam redraws the traces left to right,
+ *   leaving a dim afterglow until the next discharge.
+ * - Always: a resting arc stays lit between discharges, flickering softly.
+ * - Reduced motion: one still frame, arc lit and traces fully drawn.
  */
-import { SWEEP_PERIOD, packetPath, sinePath, squarePath, trapezoidPath } from './traces';
+import { packetPath, sinePath, squarePath, trapezoidPath } from './traces';
 
 interface Props {
   /** Faraday's fingertip in stage coordinates. The whole drawing is shifted so the spark starts there. */
@@ -28,7 +36,30 @@ const center = { x: screen.x + screen.w / 2, y: screen.y + screen.h / 2 };
 
 /** One lane per channel, centered on divisions 1, 3, 5 and 7. */
 const laneY = [1, 3, 5, 7].map((n) => screen.y + (n * screen.h) / 8);
-const lane = (y: number) => ({ x0: screen.x, length: screen.w + SWEEP_PERIOD, y, amp: 11 });
+const lane = (y: number) => ({ x0: screen.x, length: screen.w, y, amp: 11 });
+
+/** Three arc shapes from fingertip to probe tip; the loop cuts between them to read as a crackle. */
+const arcs = [
+  '655,508 660,502 665,514 671,500 677,514 682,504 688,508',
+  '655,508 659,513 664,503 670,515 676,501 683,511 688,508',
+  '655,508 661,505 666,511 672,503 678,512 683,502 688,508 M672,503 675,495',
+];
+
+/*
+ * Loop timing, shared by every looping element: `3.2s_linear_1.3s_infinite`
+ * (one discharge cycle, starting after the intro). Written out in full in each class,
+ * because Tailwind only generates classes it can read literally in the source.
+ */
+
+/** Per-arc animation classes (literal, for Tailwind's scanner). */
+const arcAnimations = [
+  'animate-[scope-arc-0_3.2s_linear_1.3s_infinite]',
+  'animate-[scope-arc-1_3.2s_linear_1.3s_infinite]',
+  'animate-[scope-arc-2_3.2s_linear_1.3s_infinite]',
+];
+
+/** The probe cable: from the probe's strain relief into the CH1 input. */
+const CABLE = 'M812 508C870 508 880 628 943 628';
 
 /** Channel traces, top to bottom. `stroke` is a Tailwind class (token color). */
 const traces = [
@@ -82,6 +113,22 @@ const inputs = traces.map((t, i) => ({ cx: 952 + i * 44, cy: 628, fill: t.fill }
     >
       <path d={`M${div.x} 0V${div.y}M0 ${div.y}H${div.x}`} class="stroke-graphite" stroke-width="1"></path>
     </pattern>
+    <!-- Beam: a gradient that is bright at its right edge (the beam) and fades behind it (afterglow). -->
+    <linearGradient id="scope-beam-fade">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"></stop>
+      <stop offset="0.7" stop-color="#fff" stop-opacity="0.55"></stop>
+      <stop offset="1" stop-color="#fff" stop-opacity="1"></stop>
+    </linearGradient>
+    <mask id="scope-beam" maskUnits="userSpaceOnUse" x={screen.x} y={screen.y} width={screen.w} height={screen.h}>
+      <rect
+        x={screen.x - screen.w}
+        y={screen.y}
+        width={screen.w}
+        height={screen.h}
+        fill="url(#scope-beam-fade)"
+        class="animate-[scope-beam_3.2s_linear_1.3s_infinite]"
+      ></rect>
+    </mask>
     <filter id="scope-glow" x="-10%" y="-50%" width="120%" height="200%">
       <feGaussianBlur stdDeviation="1.6" result="blur"></feGaussianBlur>
       <feMerge>
@@ -113,23 +160,44 @@ const inputs = traces.map((t, i) => ({ cx: 952 + i * 44, cy: 628, fill: t.fill }
   <!-- Screen: bezel, graticule, crosshair -->
   <rect x="926" y="404" width="252" height="184" rx="10" class="fill-void stroke-graphite" stroke-width="2"></rect>
   <rect x={screen.x} y={screen.y} width={screen.w} height={screen.h} rx="6" class="fill-ch1-deep/40"></rect>
-  <rect x={screen.x} y={screen.y} width={screen.w} height={screen.h} rx="6" fill="url(#scope-grid)"></rect>
-  <path
-    d={`M${screen.x} ${center.y}H${screen.x + screen.w}M${center.x} ${screen.y}V${screen.y + screen.h}`}
-    class="stroke-ch2-strong/25"
-    stroke-width="1"></path>
-  <path d={ticks} class="stroke-ch2-strong/25" stroke-width="1"></path>
 
-  <!-- Traces: scroll right-to-left, one channel per career branch -->
-  <g clip-path="url(#scope-screen)">
-    <g filter="url(#scope-glow)" class="animate-[scope-sweep_6s_linear_infinite]">
-      {
-        traces.map((t) => (
-          <path d={t.d} class={t.stroke} stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" />
-        ))
-      }
+  <!-- Screen content: collapses to a line and opens on load (power-on intro) -->
+  <g class="origin-center animate-[scope-power_1s_cubic-bezier(0.2,0.8,0.2,1)_0.2s_both] transform-fill">
+    <rect x={screen.x} y={screen.y} width={screen.w} height={screen.h} rx="6" fill="url(#scope-grid)"></rect>
+    <path
+      d={`M${screen.x} ${center.y}H${screen.x + screen.w}M${center.x} ${screen.y}V${screen.y + screen.h}`}
+      class="stroke-ch2-strong/25"
+      stroke-width="1"></path>
+    <path d={ticks} class="stroke-ch2-strong/25" stroke-width="1"></path>
+
+    <!-- Traces, one channel per career branch. Afterglow: the last sweep, dimmed. -->
+    <g clip-path="url(#scope-screen)" class="opacity-35 motion-reduce:opacity-100">
+      {traces.map((t) => <path d={t.d} class={t.stroke} stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" />)}
+    </g>
+    <!-- Fresh sweep: full brightness, revealed left to right by the beam mask. -->
+    <g clip-path="url(#scope-screen)" mask="url(#scope-beam)" filter="url(#scope-glow)" class="motion-reduce:hidden">
+      {traces.map((t) => <path d={t.d} class={t.stroke} stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" />)}
     </g>
   </g>
+
+  <!-- Power-on line (intro only) -->
+  <rect
+    x={screen.x}
+    y={center.y - 1}
+    width={screen.w}
+    height="2"
+    class="fill-ice opacity-0 drop-shadow-[0_0_6px_var(--color-phosphor)] animate-[scope-power-line_1s_ease-out_0.2s_both]"
+  ></rect>
+
+  <!-- Trigger flash when the pulse reaches the scope -->
+  <rect
+    x={screen.x}
+    y={screen.y}
+    width={screen.w}
+    height={screen.h}
+    rx="6"
+    class="fill-phosphor opacity-0 animate-[scope-screen-flash_3.2s_linear_1.3s_infinite]"
+  ></rect>
 
   <!-- Channel markers on the screen's left edge -->
   {
@@ -184,38 +252,131 @@ const inputs = traces.map((t, i) => ({ cx: 952 + i * 44, cy: 628, fill: t.fill }
     ))
   }
 
+  <!-- CH1 lights: blink when the pulse arrives -->
+  <g class="opacity-0 animate-[scope-led_3.2s_linear_1.3s_infinite]">
+    <circle cx="1200" cy="522" r="3.5" class="fill-phosphor drop-shadow-[0_0_5px_var(--color-phosphor)]"></circle>
+    <circle cx={inputs[0].cx} cy={inputs[0].cy - 18} r="3.5" class="fill-phosphor drop-shadow-[0_0_5px_var(--color-phosphor)]"></circle>
+  </g>
+
   <!-- Probe: cable into CH1, body, tip -->
-  <path d="M812 508C870 508 880 628 943 628" class="stroke-electric/80" stroke-width="4" stroke-linecap="round"></path>
+  <path d={CABLE} class="stroke-electric/80" stroke-width="4" stroke-linecap="round"></path>
+  <!-- Signal pulse: a short glowing dash that travels the cable (dash hidden off both ends between runs) -->
+  <path
+    d={CABLE}
+    pathLength="100"
+    stroke-dasharray="10 120"
+    stroke-dashoffset="10"
+    class="stroke-ice drop-shadow-[0_0_6px_var(--color-phosphor)] animate-[scope-pulse_3.2s_linear_1.3s_infinite] motion-reduce:hidden"
+    stroke-width="3"
+    stroke-linecap="round"></path>
   <rect x="799" y="500" width="14" height="16" rx="3" class="fill-graphite stroke-ch2-strong" stroke-width="1.2"></rect>
   <path d="M712 499L800 494L800 522L712 517Z" class="fill-graphite stroke-ch2-strong" stroke-width="1.4"></path>
   <path d="M736 498.5V517.5M744 498V518M752 497.5V518.5" class="stroke-ch2-strong/50" stroke-width="1"></path>
   <path d="M688 508H712" class="stroke-ice" stroke-width="3" stroke-linecap="round"></path>
 
   <!-- Spark between the finger and the probe tip -->
-  <g class="animate-[scope-spark_2.4s_ease-in-out_infinite]">
-    <circle cx="671" cy="508" r="40" class="fill-phosphor/12"></circle>
-    <polyline
-      points="655,508 660,502 665,514 671,500 677,514 682,504 688,508"
-      class="stroke-ice drop-shadow-[0_0_6px_var(--color-phosphor)]"
-      stroke-width="2"
-      stroke-linejoin="round"></polyline>
-  </g>
+  <circle
+    cx="671"
+    cy="508"
+    r="40"
+    class="origin-center fill-phosphor/30 opacity-25 transform-fill animate-[scope-flash_3.2s_linear_1.3s_infinite]"
+  ></circle>
+  <!-- Resting arc: always lit (also under reduced motion), flickering softly; steps aside during each discharge. -->
+  <path
+    d={`M${arcs[0]}`}
+    class="stroke-ice opacity-90 drop-shadow-[0_0_6px_var(--color-phosphor)] animate-[scope-arc-idle_3.2s_linear_1.3s_infinite]"
+    stroke-width="2"
+    stroke-linejoin="round"
+    stroke-linecap="round"></path>
+  <!-- Discharge: three brighter shapes cut into each other at the start of every loop. -->
+  {
+    arcs.map((points, i) => (
+      <path
+        d={`M${points}`}
+        class:list={['stroke-ice opacity-0 drop-shadow-[0_0_8px_var(--color-phosphor)]', arcAnimations[i]]}
+        stroke-width="2.4"
+        stroke-linejoin="round"
+        stroke-linecap="round"
+      />
+    ))
+  }
   </g>
 </svg>
 
 <style>
-  @keyframes scope-sweep {
-    to {
-      transform: translateX(-118px); /* = SWEEP_PERIOD in traces.ts */
-    }
+  /* Percentages are of the 3.2s loop: 1% ≈ 32ms. Paired stops (e.g. 1.5%, 1.6%) make hard cuts. */
+
+  /* ── Discharge (0–160ms): three arc shapes cut into each other ── */
+  @keyframes scope-arc-0 {
+    0%, 1.5% { opacity: 1; }
+    1.6%, 3.9% { opacity: 0; }
+    4%, 5% { opacity: 1; }
+    5.1%, 100% { opacity: 0; }
   }
-  @keyframes scope-spark {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.55;
-    }
+  @keyframes scope-arc-1 {
+    0%, 1.5% { opacity: 0; }
+    1.6%, 2.7% { opacity: 1; }
+    2.8%, 100% { opacity: 0; }
+  }
+  @keyframes scope-arc-2 {
+    0%, 2.7% { opacity: 0; }
+    2.8%, 3.9% { opacity: 1; }
+    4%, 100% { opacity: 0; }
+  }
+  /* Resting arc: off while the discharge shapes play, then a steady, slightly unstable glow. */
+  @keyframes scope-arc-idle {
+    0%, 5% { opacity: 0; }
+    5.1% { opacity: 1; }
+    20% { opacity: 0.8; }
+    21% { opacity: 0.95; }
+    42% { opacity: 0.75; }
+    43%, 58% { opacity: 0.9; }
+    59% { opacity: 0.7; }
+    61% { opacity: 1; }
+    80% { opacity: 0.8; }
+    100% { opacity: 0.9; }
+  }
+  /* Glow at the gap: flashes with the arc, then decays fast. */
+  @keyframes scope-flash {
+    0% { opacity: 0.25; transform: scale(1); }
+    1% { opacity: 1; transform: scale(1.2); }
+    14%, 100% { opacity: 0.25; transform: scale(1); }
+  }
+
+  /* ── Pulse down the cable (130–540ms) ── */
+  @keyframes scope-pulse {
+    0%, 4% { stroke-dashoffset: 10; }
+    17%, 100% { stroke-dashoffset: -110; }
+  }
+
+  /* ── Arrival (~540ms): CH1 lights and a faint screen flash ── */
+  @keyframes scope-led {
+    0%, 16.5% { opacity: 0; }
+    17% { opacity: 1; }
+    32%, 100% { opacity: 0; }
+  }
+  @keyframes scope-screen-flash {
+    0%, 16.5% { opacity: 0; }
+    17.5% { opacity: 0.12; }
+    30%, 100% { opacity: 0; }
+  }
+
+  /* ── Beam sweep: head crosses the screen (17–67%), afterglow tail exits by 85% ── */
+  @keyframes scope-beam {
+    0%, 17% { transform: translateX(0); }
+    67% { transform: translateX(236px); } /* screen width */
+    85%, 100% { transform: translateX(472px); }
+  }
+
+  /* ── Intro, once: power-on ── */
+  @keyframes scope-power {
+    0% { transform: scaleY(0.01); opacity: 0; }
+    15%, 35% { transform: scaleY(0.01); opacity: 1; }
+    100% { transform: scaleY(1); opacity: 1; }
+  }
+  @keyframes scope-power-line {
+    0% { opacity: 0; }
+    15%, 45% { opacity: 1; }
+    75%, 100% { opacity: 0; }
   }
 </style>

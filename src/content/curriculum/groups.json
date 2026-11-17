@@ -1,0 +1,13 @@
+[
+  { "id": "math", "name": "Matemáticas, Probabilidad y Estadística", "label": "Matemáticas", "component": "foundation", "elective": false },
+  { "id": "physics", "name": "Física", "label": "Física", "component": "foundation", "elective": false },
+  { "id": "chemistry", "name": "Química", "label": "Química", "component": "foundation", "elective": false },
+  { "id": "computing", "name": "Herramientas Informáticas y Métodos Numéricos", "label": "Herramientas informáticas", "component": "foundation", "elective": false },
+  { "id": "basic-science", "name": "Optativas de Ciencia Básica", "label": "Ciencia básica", "component": "foundation", "elective": true },
+  { "id": "design", "name": "Dibujo y Diseño Ingenieril", "label": "Dibujo y diseño", "component": "professional", "elective": false },
+  { "id": "professional-physics", "name": "Físicas Profesionales", "label": "Físicas profesionales", "component": "professional", "elective": false },
+  { "id": "electronics", "name": "Electricidad y Electrónica", "label": "Electricidad y electrónica", "component": "professional", "elective": false },
+  { "id": "thesis", "name": "Trabajo de Grado", "label": "Trabajo de grado", "component": "professional", "elective": false },
+  { "id": "instrumentation", "name": "Instrumentación y Mecatrónica", "label": "Instrumentación", "component": "professional", "elective": true },
+  { "id": "economics", "name": "Ciencias Económicas y Administrativas", "label": "Económicas y administrativas", "component": "professional", "elective": true }
+]

@@ -1,0 +1,170 @@
+---
+/**
+ * What Faraday rests on — the counterpart of Adam's hillside in the fresco.
+ * A lab bench drawn in the oscilloscope's line style, a parchment cloth bunched under his
+ * back (it fills the slope of his reclining body), his books under the elbow, and two of his
+ * instruments at the far end: a Leyden jar (glows with each discharge) and the iron
+ * induction ring. Decorative — hidden from assistive tech.
+ *
+ * Drawn in the hero's 1440-wide drawing space, NOT shifted: it follows Faraday's image,
+ * which is placed in the same coordinates. The legs run below the stage and fade out.
+ */
+
+interface Props {
+  /** Visible window of the drawing space, as an SVG viewBox string. Must match the stage. */
+  viewBox: string;
+}
+const { viewBox } = Astro.props;
+
+/** Bench top surface (y) and horizontal extent, in drawing units. */
+const TOP = 878;
+const bench = { x0: 0, x1: 1200 };
+
+/**
+ * Faraday's underside, sampled every 40 units on the cutout (lowest opaque pixel), lifted
+ * 6 units so the cloth tucks behind him. If the cutout changes, measure again.
+ */
+const underside = [
+  [120, 817], [160, 823], [200, 829], [240, 834], [280, 839], [320, 848], [360, 848],
+  [400, 852], [440, 855], [480, 853], [520, 850], [560, 846], [600, 848], [640, 849],
+  [680, 855], [720, 862], [760, 869], [800, 875], [840, 878], [880, 878], [920, 874],
+  [960, 874], [1000, 859],
+].map(([x, y]) => `${x},${y - 6}`);
+
+/** Cloth: its top follows his body, then it spills over the bench edge with a soft hem. */
+const cloth = [
+  `M140 ${TOP}`,
+  `L${underside.join(' L')}`,
+  `C1018 856 1030 880 1034 ${TOP + 26}`,
+  `C1000 ${TOP + 34} 960 ${TOP + 24} 920 ${TOP + 32}`,
+  `C870 ${TOP + 42} 820 ${TOP + 26} 770 ${TOP + 34}`,
+  `C710 ${TOP + 44} 640 ${TOP + 28} 580 ${TOP + 36}`,
+  `C520 ${TOP + 44} 450 ${TOP + 26} 390 ${TOP + 34}`,
+  `C330 ${TOP + 40} 270 ${TOP + 22} 230 ${TOP + 30}`,
+  `L140 ${TOP}Z`,
+].join(' ');
+
+/** Folds: soft vertical creases where the cloth hangs over the edge. */
+const folds = [
+  `M360 ${TOP - 4}C366 ${TOP + 10} 370 ${TOP + 22} 378 ${TOP + 32}`,
+  `M560 ${TOP - 6}C566 ${TOP + 10} 570 ${TOP + 24} 576 ${TOP + 34}`,
+  `M760 ${TOP - 2}C764 ${TOP + 12} 766 ${TOP + 22} 772 ${TOP + 32}`,
+  `M930 ${TOP - 2}C936 ${TOP + 12} 940 ${TOP + 20} 948 ${TOP + 28}`,
+  `M180 ${TOP - 30}C220 ${TOP - 24} 250 ${TOP - 10} 270 ${TOP}`,
+];
+
+/** Books under his elbow, bottom to top: x, width, tilt (degrees). */
+const books = [
+  { x: 22, w: 150, h: 22, tilt: 0 },
+  { x: 30, w: 136, h: 20, tilt: -1.5 },
+  { x: 26, w: 128, h: 20, tilt: 1 },
+];
+
+/** Leyden jar and induction ring on the free end of the bench, under the scope. */
+const jar = { cx: 1062, w: 40, h: 58 };
+const ring = { cx: 1140, r: 24 };
+---
+
+<svg aria-hidden="true" viewBox={viewBox} class="pointer-events-none absolute inset-0 size-full overflow-visible" fill="none">
+  <defs>
+    <!-- Legs fade into the dark below the stage, so the bench never ends abruptly. -->
+    <linearGradient id="bench-fade" x1="0" y1={TOP} x2="0" y2={TOP + 130} gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff"></stop>
+      <stop offset="0.25" stop-color="#fff"></stop>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"></stop>
+    </linearGradient>
+    <mask id="bench-legs" maskUnits="userSpaceOnUse" x="-100" y={TOP - 400} width="1500" height="600">
+      <rect x="-100" y={TOP - 400} width="1500" height="400" fill="#fff"></rect>
+      <rect x="-100" y={TOP} width="1500" height="200" fill="url(#bench-fade)"></rect>
+    </mask>
+  </defs>
+
+  <g mask="url(#bench-legs)">
+    <!-- Legs and stretcher -->
+    <rect x="34" y={TOP + 30} width="16" height="120" rx="2" class="fill-carbon stroke-electric/40" stroke-width="1.2"></rect>
+    <rect x="1150" y={TOP + 30} width="16" height="120" rx="2" class="fill-carbon stroke-electric/40" stroke-width="1.2"></rect>
+    <path d={`M50 ${TOP + 96}H1150`} class="stroke-electric/25" stroke-width="1.2"></path>
+
+    <!-- Apron and top slab -->
+    <rect x={bench.x0 + 14} y={TOP + 14} width={bench.x1 - bench.x0 - 28} height="18" class="fill-carbon stroke-electric/35" stroke-width="1.2"></rect>
+    <rect x={bench.x0} y={TOP} width={bench.x1 - bench.x0} height="14" rx="3" class="fill-carbon stroke-electric/60" stroke-width="1.4"></rect>
+    <path d={`M${bench.x0 + 6} ${TOP + 4}H${bench.x1 - 6}`} class="stroke-ice/10" stroke-width="1"></path>
+  </g>
+
+  <!-- Cloth under Faraday -->
+  <path d={cloth} class="fill-[color-mix(in_oklab,var(--color-parchment)_22%,var(--color-carbon))] stroke-parchment/45" stroke-width="1.2" stroke-linejoin="round"></path>
+  {folds.map((d) => <path d={d} class="stroke-parchment/20" stroke-width="1.1" stroke-linecap="round" />)}
+
+  <!-- Books under the elbow -->
+  {
+    books.map((b, i) => {
+      const y = TOP - books.slice(0, i + 1).reduce((sum, book) => sum + book.h, 0);
+      return (
+        <g transform={`rotate(${b.tilt} ${b.x + b.w / 2} ${y + b.h / 2})`}>
+          <rect x={b.x} y={y} width={b.w} height={b.h} rx="3" class="fill-carbon stroke-parchment/40" stroke-width="1.2" />
+          <path d={`M${b.x + 10} ${y + 4}V${y + b.h - 4}`} class="stroke-parchment/25" stroke-width="1" />
+          <path d={`M${b.x + b.w - 6} ${y + 3}V${y + b.h - 3}`} class="stroke-ice/15" stroke-width="2" />
+        </g>
+      );
+    })
+  }
+
+  <!-- Leyden jar: glass jar, foil on the lower half, brass rod and ball on top -->
+  <g>
+    <rect x={jar.cx - jar.w / 2} y={TOP - jar.h} width={jar.w} height={jar.h} rx="8" class="fill-carbon/80 stroke-ice/45" stroke-width="1.3"></rect>
+    <rect x={jar.cx - jar.w / 2 + 3} y={TOP - jar.h / 2} width={jar.w - 6} height={jar.h / 2 - 3} rx="5" class="fill-ch2-deep stroke-ch2-strong/70" stroke-width="1"></rect>
+    <rect x={jar.cx - jar.w / 2 - 2} y={TOP - jar.h - 5} width={jar.w + 4} height="7" rx="2" class="fill-graphite stroke-ch2-strong/60" stroke-width="1"></rect>
+    <path d={`M${jar.cx} ${TOP - jar.h - 5}V${TOP - jar.h - 30}`} class="stroke-amber-500/70" stroke-width="2"></path>
+    <circle cx={jar.cx} cy={TOP - jar.h - 35} r="5.5" class="fill-amber-300/80"></circle>
+    <!-- Stored charge: flares with every discharge, then settles to a faint glow. -->
+    <circle
+      cx={jar.cx}
+      cy={TOP - jar.h - 35}
+      r="11"
+      class="origin-center fill-ice/40 opacity-30 drop-shadow-[0_0_8px_var(--color-phosphor)] transform-fill animate-[bench-jar_3.2s_linear_1.3s_infinite]"
+    ></circle>
+  </g>
+
+  <!-- Faraday's induction ring: iron ring with two copper coils, on a small stand -->
+  <g>
+    <rect x={ring.cx - 14} y={TOP - 6} width="28" height="6" rx="2" class="fill-graphite stroke-ch2-strong/50" stroke-width="1"></rect>
+    <circle cx={ring.cx} cy={TOP - 6 - ring.r - 3} r={ring.r} class="stroke-ch2-strong/80" stroke-width="5"></circle>
+    <path
+      d={Array.from({ length: 7 }, (_, i) => {
+        const a = (Math.PI * (150 + i * 10)) / 180;
+        const cy = TOP - 6 - ring.r - 3;
+        return `M${(ring.cx + (ring.r - 5) * Math.cos(a)).toFixed(1)} ${(cy + (ring.r - 5) * Math.sin(a)).toFixed(1)}L${(ring.cx + (ring.r + 5) * Math.cos(a)).toFixed(1)} ${(cy + (ring.r + 5) * Math.sin(a)).toFixed(1)}`;
+      }).join('')}
+      class="stroke-amber-600/80"
+      stroke-width="1.6"
+      stroke-linecap="round"></path>
+    <path
+      d={Array.from({ length: 7 }, (_, i) => {
+        const a = (Math.PI * (-30 + i * 10)) / 180;
+        const cy = TOP - 6 - ring.r - 3;
+        return `M${(ring.cx + (ring.r - 5) * Math.cos(a)).toFixed(1)} ${(cy + (ring.r - 5) * Math.sin(a)).toFixed(1)}L${(ring.cx + (ring.r + 5) * Math.cos(a)).toFixed(1)} ${(cy + (ring.r + 5) * Math.sin(a)).toFixed(1)}`;
+      }).join('')}
+      class="stroke-amber-600/80"
+      stroke-width="1.6"
+      stroke-linecap="round"></path>
+  </g>
+</svg>
+
+<style>
+  /* In step with the oscilloscope's 3.2s discharge loop: flare at the spark, fade by ~0.6s. */
+  @keyframes bench-jar {
+    0% {
+      opacity: 0.3;
+      transform: scale(1);
+    }
+    2% {
+      opacity: 1;
+      transform: scale(1.35);
+    }
+    20%,
+    100% {
+      opacity: 0.3;
+      transform: scale(1);
+    }
+  }
+</style>

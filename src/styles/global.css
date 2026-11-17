@@ -46,6 +46,9 @@
   --font-serif: var(--font-instrument-serif);
   --font-sans: var(--font-bricolage);
 
+  /* ── Layout ──────────────────────────────────────── */
+  --container-page: 80rem; /* 1280px: max content width on any screen → max-w-page */
+
   /* ── Radius ──────────────────────────────────────── */
   --radius-control: 6px; /* inputs, monogram. Buttons and the nav island use rounded-full */
 }
@@ -171,7 +174,7 @@
     outline-offset: 2px;
   }
 
-  /* Reduced motion: everything static. No exceptions (SYSTEM-DESIGN.md §5). */
+  /* Reduced motion: everything static. No exceptions (SYSTEM-DESIGN.md §6). */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,

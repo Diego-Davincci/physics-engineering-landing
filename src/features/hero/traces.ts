@@ -2,19 +2,17 @@
  * Path builders for the four channel signals on the hero oscilloscope.
  * Pure geometry in SVG user units — no DOM, no framework.
  *
- * Every trace repeats at a divisor of SWEEP_PERIOD, so shifting the whole
- * group left by exactly SWEEP_PERIOD (the `scope-sweep` keyframe in
- * Oscilloscope.astro) loops seamlessly.
+ * All traces share one base period so the four channels stay visually in step.
  */
 
-/** Horizontal distance the screen scrolls per animation loop. Must match `scope-sweep`. */
+/** Base period in user units: sine, trapezoid and square repeat every half of it; the wave packet once. */
 export const SWEEP_PERIOD = 118;
 
 /** A horizontal lane on the scope screen. */
 export interface Lane {
   /** Left edge where the signal starts. */
   x0: number;
-  /** Total length to draw. Use screen width + SWEEP_PERIOD so the loop never shows a gap. */
+  /** Total length to draw (the screen width). */
   length: number;
   /** Vertical center of the lane. */
   y: number;

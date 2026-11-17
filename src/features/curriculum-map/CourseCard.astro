@@ -1,0 +1,43 @@
+---
+/**
+ * One card of the curriculum map, colored by its group.
+ * - course: solid border on the group's deep tone.
+ * - elective: a dashed, empty seat for any course of an elective group.
+ * - free: a dashed, neutral seat for any course of the university.
+ * The group is also written on the card, so color is never the only cue.
+ */
+import type { Card } from './curriculum';
+import { freeStyle, groupStyle } from './group-styles';
+
+interface Props {
+  /** Card to draw. */
+  card: Card;
+}
+
+const { card } = Astro.props;
+
+const style = card.kind === 'free' ? freeStyle : groupStyle(card.group.id);
+const code = card.kind === 'course' ? card.code : card.kind === 'elective' ? 'Optativa' : 'Libre';
+const tag = card.kind === 'free' ? 'Cualquier asignatura' : card.group.label;
+const name = card.kind === 'elective' ? `${card.name} · ${card.group.label}` : card.name;
+---
+
+<article
+  aria-label={`${name}, ${card.credits} créditos`}
+  class:list={[
+    'flex min-h-24 flex-col justify-between gap-1.5 rounded-lg border px-3 py-2.5 md:h-28 md:w-48',
+    style.border,
+    card.kind === 'course' ? style.bg : 'border-dashed bg-transparent',
+  ]}
+>
+  <p aria-hidden="true" class="flex justify-between gap-2 type-data text-muted">
+    <span class="truncate">{code}</span>
+    <span class="shrink-0 text-foreground">{card.credits} cr</span>
+  </p>
+  <p aria-hidden="true" class:list={['line-clamp-2 type-small font-medium', card.kind === 'free' ? 'text-muted' : 'text-foreground']}>
+    {card.kind === 'elective' ? card.name : name}
+  </p>
+  <p aria-hidden="true" class:list={['truncate text-[11px] leading-4 font-semibold tracking-[0.08em] uppercase', style.text]}>
+    {tag}
+  </p>
+</article>

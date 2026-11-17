@@ -1,0 +1,100 @@
+[
+  {
+    "id": "1",
+    "slots": [
+      { "type": "course", "course": "1000004-M" },
+      { "type": "course", "course": "1000008-M" },
+      { "type": "course", "course": "3006829" },
+      { "type": "course", "course": "3010435" },
+      { "type": "course", "course": "3006851" }
+    ]
+  },
+  {
+    "id": "2",
+    "slots": [
+      { "type": "course", "course": "1000005-M" },
+      { "type": "course", "course": "1000003-M" },
+      { "type": "course", "course": "1000019-M" },
+      { "type": "course", "course": "3006872" }
+    ]
+  },
+  {
+    "id": "3",
+    "slots": [
+      { "type": "course", "course": "1000006-M" },
+      { "type": "course", "course": "3006837" },
+      { "type": "course", "course": "3006838" },
+      { "type": "course", "course": "1000017-M" },
+      { "type": "course", "course": "3006873" }
+    ]
+  },
+  {
+    "id": "4",
+    "slots": [
+      { "type": "course", "course": "1000007-M" },
+      { "type": "elective", "group": "basic-science", "credits": 3 },
+      { "type": "course", "course": "3006914" },
+      { "type": "elective", "group": "basic-science", "credits": 3 },
+      { "type": "course", "course": "3006874" }
+    ]
+  },
+  {
+    "id": "5",
+    "slots": [
+      { "type": "course", "course": "3006905" },
+      { "type": "course", "course": "3007826" },
+      { "type": "course", "course": "1000020-M" },
+      { "type": "course", "course": "3006875" }
+    ]
+  },
+  {
+    "id": "6",
+    "slots": [
+      { "type": "course", "course": "3006841" },
+      { "type": "course", "course": "3006861" },
+      { "type": "course", "course": "3006852" },
+      { "type": "course", "course": "1000018-M" },
+      { "type": "free", "credits": 4 },
+      { "type": "course", "course": "3006845" }
+    ]
+  },
+  {
+    "id": "7",
+    "slots": [
+      { "type": "course", "course": "3006882" },
+      { "type": "course", "course": "3010225" },
+      { "type": "elective", "group": "instrumentation", "credits": 3 },
+      { "type": "course", "course": "3006854" },
+      { "type": "course", "course": "3006876" }
+    ]
+  },
+  {
+    "id": "8",
+    "slots": [
+      { "type": "course", "course": "3006843" },
+      { "type": "elective", "group": "economics", "credits": 3 },
+      { "type": "elective", "group": "instrumentation", "credits": 3 },
+      { "type": "free", "credits": 4 },
+      { "type": "free", "credits": 4 }
+    ]
+  },
+  {
+    "id": "9",
+    "slots": [
+      { "type": "free", "credits": 4 },
+      { "type": "elective", "group": "economics", "credits": 3 },
+      { "type": "elective", "group": "instrumentation", "credits": 3 },
+      { "type": "free", "credits": 4 },
+      { "type": "free", "credits": 4 }
+    ]
+  },
+  {
+    "id": "10",
+    "slots": [
+      { "type": "course", "course": "3006944" },
+      { "type": "free", "credits": 4 },
+      { "type": "free", "credits": 4 },
+      { "type": "free", "credits": 4 }
+    ]
+  }
+]

@@ -1,0 +1,33 @@
+---
+/**
+ * One semester of the map: header with its credit total, then its cards top to bottom.
+ * Below md the cards wrap in a grid (the semesters stack); from md it is a single column.
+ */
+import CourseCard from './CourseCard.astro';
+import type { Semester } from './curriculum';
+
+interface Props {
+  /** Semester to draw. */
+  semester: Semester;
+}
+
+const { semester } = Astro.props;
+---
+
+<section aria-labelledby={`semester-${semester.number}`} class="flex flex-col gap-3 md:w-48 md:shrink-0">
+  <header class="flex h-9 items-center justify-between border-b border-graphite">
+    <h2 id={`semester-${semester.number}`} class="type-eyebrow text-foreground">
+      Semestre {semester.numeral}
+    </h2>
+    <p class="type-data text-muted">{semester.credits} cr</p>
+  </header>
+  <ul class="grid grid-cols-1 gap-2.5 min-[25rem]:grid-cols-2 sm:grid-cols-3 md:flex md:flex-col">
+    {
+      semester.cards.map((card) => (
+        <li>
+          <CourseCard card={card} />
+        </li>
+      ))
+    }
+  </ul>
+</section>
